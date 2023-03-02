@@ -19,6 +19,8 @@ private:
 
     bool isRunning = false;
 
+    SDL_Surface* tempSurface = IMG_Load("../Assets/pacman icon.png");
+
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
 public:

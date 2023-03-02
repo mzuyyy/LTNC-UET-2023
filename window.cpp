@@ -6,7 +6,7 @@
 #include "logStatus.h"
 
 Log* consoleWindow = new Log("Window");
-
+SDL_Rect destR;
 void Window::init() {
     if(SDL_Init( SDL_INIT_VIDEO ) < 0 )
     {
@@ -38,6 +38,8 @@ void Window::close() {
 }
 
 void Window::runGame() {
+    SDL_Texture* tempTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
     while (isRunning) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -45,8 +47,11 @@ void Window::runGame() {
                 isRunning = false;
             }
         }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        destR.h = 200;
+        destR.w = 200;
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, tempTexture, nullptr, &destR);
         SDL_RenderPresent(renderer);
     }
 }
