@@ -1,9 +1,11 @@
-#include "window.h"
+#include "Game.h"
 
 int main(int argc, char* argv[]) {
-    auto* window = new Window();
-    window->init();
-    window->runGame();
-    window->close();
+    Game* game = new Game();
+    game->init();
+
+    game->runGame();
+
+    game->close();
     return 0;
 }

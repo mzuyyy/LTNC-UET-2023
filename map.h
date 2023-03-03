@@ -11,10 +11,14 @@
 
 class Map {
 private:
-    static char* mapPath = "../Assets/map.txt";
+    std::string mapPath = "../Assets/map.txt";
+    static const int MAP_WIDTH = 28;
+    static const int MAP_HEIGHT = 31;
+    int tile[MAP_HEIGHT][MAP_WIDTH];
 public:
     Map();
-    ~Map()= default;
+    ~Map();
+    static int getTileID(int x, int y);
     void renderMap(SDL_Renderer* renderer);
 };
 

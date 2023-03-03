@@ -1,16 +1,16 @@
 //
-// Created by MZuy on 3/2/2023.
+// Created by MZuy on 3/3/2023.
 //
+#pragma once
 
-#ifndef BTL_WINDOW_H
-#define BTL_WINDOW_H
 #include <iostream>
+#include "textureManager.h"
+#include "Object.h"
 #include <SDL.h>
 #include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
+#include <SDL_render.h>
 
-class Window {
+class Game {
 private:
     static const int WINDOW_WIDTH = 1280;
     static const int WINDOW_HEIGHT = 720;
@@ -19,24 +19,25 @@ private:
 
     bool isRunning = false;
 
-    SDL_Surface* tempSurface = IMG_Load("../Assets/pacman icon.png");
-
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+    const int FPS = 60;
+    int frameDelay = 1000/FPS;
+
+    Uint32 frameStart{};
+    int frameTime{};
 public:
-    Window(){
-        window = nullptr;
+    Game(){
         renderer = nullptr;
+        window = nullptr;
     };
-    ~Window(){
+    ~Game(){
         renderer = nullptr;
         window = nullptr;
     };
     void init();
     void close();
     void runGame();
-
 };
 
 
-#endif //BTL_WINDOW_H
