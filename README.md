@@ -8,9 +8,9 @@ Bài tập lớn - Pacman
 
 Môn lập trình nâng cao lớp số 22 (INT2215 22)
 
-Giáo viên giảng dạy lý thuyết: [TS.Trần Thị Minh Châu](https://uet.vnu.edu.vn/~chauttm/)
+Giảng viên lý thuyết: [TS.Trần Thị Minh Châu](https://uet.vnu.edu.vn/~chauttm/)
 
-Giáo viên giảng dạy bài tập: CN.Kiều Hải Đăng 
+Giảng viên bài tập: CN.Kiều Hải Đăng 
 
 ### Table of Contents
 **[Started](#started)**  
