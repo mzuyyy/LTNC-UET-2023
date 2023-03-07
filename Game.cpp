@@ -46,17 +46,9 @@ void Game::runGame() {
 
     while (isRunning) {
 
-        SDL_Event event;
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                isRunning = false;
-            }
-        }
-
+        handleEvent();
         player->update();
-
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         player->render();
         SDL_RenderPresent(renderer);
@@ -66,6 +58,68 @@ void Game::runGame() {
         {
             SDL_Delay(frameDelay - frameTime);
         }
+    }
+}
+
+void Game::handleEvent() {
+    //write function to handle event and movement of player
+    // and player stop when no key is pressed
+    SDL_Event event;
+    SDL_PollEvent(&event);
+    switch (event.type) {
+        case SDL_QUIT:
+            isRunning = false;
+            break;
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                    player->isMovingUp = true;
+                    player->isMovingDown = false;
+                    player->isMovingLeft = false;
+                    player->isMovingRight = false;
+                    break;
+                case SDLK_DOWN:
+                    player->isMovingUp = false;
+                    player->isMovingDown = true;
+                    player->isMovingLeft = false;
+                    player->isMovingRight = false;
+                    break;
+                case SDLK_LEFT:
+                    player->isMovingUp = false;
+                    player->isMovingDown = false;
+                    player->isMovingLeft = true;
+                    player->isMovingRight = false;
+                    break;
+                case SDLK_RIGHT:
+                    player->isMovingUp = false;
+                    player->isMovingDown = false;
+                    player->isMovingLeft = false;
+                    player->isMovingRight = true;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case SDL_KEYUP:
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                    player->isMovingUp = false;
+                    break;
+                case SDLK_DOWN:
+                    player->isMovingDown = false;
+                    break;
+                case SDLK_LEFT:
+                    player->isMovingLeft = false;
+                    break;
+                case SDLK_RIGHT:
+                    player->isMovingRight = false;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
 }
 

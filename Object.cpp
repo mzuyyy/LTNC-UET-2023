@@ -5,8 +5,10 @@
 #include "Object.h"
 
 void Object::update() {
-    xPosition++;
-    yPosition++;
+    if (isMovingLeft) xPosition--;
+    else if(isMovingRight) xPosition++;
+    if (isMovingUp) yPosition--;
+    else if(isMovingDown) yPosition++;
 
     sourceRect.h = 32;
     sourceRect.w = 32;

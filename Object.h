@@ -18,6 +18,10 @@ public:
     ~Object();
     void update();
     void render();
+    bool isMovingDown = false;
+    bool isMovingUp = false;
+    bool isMovingLeft = false;
+    bool isMovingRight = false;
 };
 
 

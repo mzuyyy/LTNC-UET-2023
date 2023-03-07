@@ -21,7 +21,7 @@ private:
 
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
-    const int FPS = 60;
+    const int FPS = 240;
     int frameDelay = 1000/FPS;
 
     Uint32 frameStart{};
@@ -37,6 +37,7 @@ public:
     };
     void init();
     void close();
+    void handleEvent();
     void runGame();
 };
 
