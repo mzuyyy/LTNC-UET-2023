@@ -3,6 +3,7 @@
 //
 
 #include "Object.h"
+#include "textureManager.h"
 
 void Object::update() {
     if (isMovingLeft) xPosition--;
@@ -10,8 +11,8 @@ void Object::update() {
     if (isMovingUp) yPosition--;
     else if(isMovingDown) yPosition++;
 
-    sourceRect.h = 32;
-    sourceRect.w = 32;
+    sourceRect.h = 21;
+    sourceRect.w = 21;
     sourceRect.x = 0;
     sourceRect.y = 0;
 

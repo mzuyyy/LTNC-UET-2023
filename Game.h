@@ -6,6 +6,7 @@
 #include <iostream>
 #include "textureManager.h"
 #include "Object.h"
+#include "Pacman.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_render.h>

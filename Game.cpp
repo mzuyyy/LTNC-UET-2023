@@ -7,7 +7,9 @@
 
 Log* consoleGame = new Log("Game");
 
-Object* player;
+Pacman* pacman = nullptr;
+
+
 int count = 0;
 void Game::init() {
     if(SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -41,16 +43,15 @@ void Game::close() {
 }
 void Game::runGame() {
     frameStart = SDL_GetTicks();
-
-    player = new Object("../Assets/pacman icon.png", 0, 0, renderer);
+    pacman = new Pacman("../Assets/pacmanTexture.png", 0, 0, renderer);
 
     while (isRunning) {
-
         handleEvent();
-        player->update();
+        pacman->update();
+        pacman->updateClip();
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        player->render();
+        pacman->render();
         SDL_RenderPresent(renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
@@ -62,8 +63,6 @@ void Game::runGame() {
 }
 
 void Game::handleEvent() {
-    //write function to handle event and movement of player
-    // and player stop when no key is pressed
     SDL_Event event;
     SDL_PollEvent(&event);
     switch (event.type) {
@@ -73,53 +72,32 @@ void Game::handleEvent() {
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    player->isMovingUp = true;
-                    player->isMovingDown = false;
-                    player->isMovingLeft = false;
-                    player->isMovingRight = false;
+                    pacman->isMovingUp = true;
+                    pacman->isMovingDown = false;
+                    pacman->isMovingLeft = false;
+                    pacman->isMovingRight = false;
                     break;
                 case SDLK_DOWN:
-                    player->isMovingUp = false;
-                    player->isMovingDown = true;
-                    player->isMovingLeft = false;
-                    player->isMovingRight = false;
+                    pacman->isMovingUp = false;
+                    pacman->isMovingDown = true;
+                    pacman->isMovingLeft = false;
+                    pacman->isMovingRight = false;
                     break;
                 case SDLK_LEFT:
-                    player->isMovingUp = false;
-                    player->isMovingDown = false;
-                    player->isMovingLeft = true;
-                    player->isMovingRight = false;
+                    pacman->isMovingUp = false;
+                    pacman->isMovingDown = false;
+                    pacman->isMovingLeft = true;
+                    pacman->isMovingRight = false;
                     break;
                 case SDLK_RIGHT:
-                    player->isMovingUp = false;
-                    player->isMovingDown = false;
-                    player->isMovingLeft = false;
-                    player->isMovingRight = true;
+                    pacman->isMovingUp = false;
+                    pacman->isMovingDown = false;
+                    pacman->isMovingLeft = false;
+                    pacman->isMovingRight = true;
                     break;
                 default:
                     break;
             }
-            break;
-        case SDL_KEYUP:
-            switch (event.key.keysym.sym) {
-                case SDLK_UP:
-                    player->isMovingUp = false;
-                    break;
-                case SDLK_DOWN:
-                    player->isMovingDown = false;
-                    break;
-                case SDLK_LEFT:
-                    player->isMovingLeft = false;
-                    break;
-                case SDLK_RIGHT:
-                    player->isMovingRight = false;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        default:
-            break;
     }
 }
 

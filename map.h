@@ -15,7 +15,9 @@ private:
     static const int MAP_WIDTH = 28;
     static const int MAP_HEIGHT = 31;
     static int tile[MAP_HEIGHT][MAP_WIDTH];
-
+    const int mapWidthFrame = 16;
+    const int mapHeightFrame = 16;
+    SDL_Rect mapFrameClip[39];
 public:
     Map();
 
@@ -23,8 +25,8 @@ public:
 
     static int getTileID(int x, int y);
 
-    void renderMap(SDL_Renderer *renderer);
-
+    void renderMap(SDL_Renderer* renderer);
+    void  setMapFrameClip();
     SDL_Texture *dot;
     SDL_Texture *pacman;
     SDL_Texture *inky;
