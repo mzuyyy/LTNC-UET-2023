@@ -8,38 +8,34 @@
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "Object.h"
 
-class Map {
+class Map : public Object {
 private:
     std::string mapPath = "../Assets/map.txt";
+
     static const int MAP_WIDTH = 28;
     static const int MAP_HEIGHT = 31;
+
     static int tile[MAP_HEIGHT][MAP_WIDTH];
+
     const int mapWidthFrame = 16;
     const int mapHeightFrame = 16;
-    SDL_Rect mapFrameClip[39];
+
+    SDL_Rect mapFrameClip[30];
 public:
-    Map();
+    Map(const char *textureSheet, int x, int y, SDL_Renderer *renderer);
 
     ~Map();
 
     static int getTileID(int x, int y);
 
+    void loadMap();
+
     void renderMap(SDL_Renderer* renderer);
+
     void  setMapFrameClip();
-    SDL_Texture *dot;
-    SDL_Texture *pacman;
-    SDL_Texture *inky;
-    SDL_Texture *blinky;
-    SDL_Texture *pinky;
-    SDL_Texture *clyde;
-    SDL_Texture *wall;
-    SDL_Texture *pellet;
-    SDL_Texture *powerPellet;
-    SDL_Texture *fruit;
 
-    SDL_Rect sourceRect{}, destRect{};
-
-    SDL_Renderer* renderer;
+    SDL_Rect sourceRect[31][28], destRect[31][28];
 
 };

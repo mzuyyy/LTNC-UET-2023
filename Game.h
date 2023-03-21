@@ -7,6 +7,7 @@
 #include "textureManager.h"
 #include "Object.h"
 #include "Pacman.h"
+#include "map.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_render.h>
@@ -27,6 +28,8 @@ private:
 
     Uint32 frameStart{};
     int frameTime{};
+
+    Pacman* pacman = new Pacman("../Assets/pacmanTexture.png", 0, 0, renderer);
 public:
     Game(){
         renderer = nullptr;

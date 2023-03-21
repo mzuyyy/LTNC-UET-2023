@@ -10,20 +10,9 @@ Log* consoleMap = new Log("Map");
 int Map::tile[MAP_HEIGHT][MAP_WIDTH];
 
 //write function to read map.txt
-Map::Map() {
-    dot = textureManager::LoadTexture("../Assets/dot.png", renderer);
-    pacman = textureManager::LoadTexture("../Assets/pacman.png", renderer);
-    inky = textureManager::LoadTexture("../Assets/inky.png", renderer);
-    blinky = textureManager::LoadTexture("../Assets/blinky icon.png", renderer);
-    pinky = textureManager::LoadTexture("../Assets/pinky icon.png", renderer);
-    clyde = textureManager::LoadTexture("../Assets/clyde icon.png", renderer);
-    wall = textureManager::LoadTexture("../Assets/wall.png", renderer);
-    pellet = textureManager::LoadTexture("../Assets/pellet.png", renderer);
-    powerPellet = textureManager::LoadTexture("../Assets/powerPellet.png", renderer);
-    fruit = textureManager::LoadTexture("../Assets/fruit.png", renderer);
-
+Map::Map(const char *textureSheet, int x, int y, SDL_Renderer *renderer) : Object(textureSheet, x, y, renderer) {
     consoleMap->updateStatus("Map is created");
-    std::ifstream mapFile(mapPath);
+    std::ifstream mapFile(textureSheet);
     if (mapFile.is_open()) {
         for (auto & i : tile) {
             for (int & j : i) {
@@ -36,14 +25,16 @@ Map::Map() {
     }
     mapFile.close();
 }
+
 Map::~Map() {
     consoleMap->updateStatus("Map is destroyed");
 }
-int Map::getTileID(int x, int y) {
-    return tile[y][x];
+
+void Map::loadMap() {
+
 }
 
-void Map::renderMap(SDL_Renderer *renderer) {
+void Map::renderMap(SDL_Renderer* renderer) {
 
 }
 
@@ -57,3 +48,5 @@ void Map::setMapFrameClip() {
         }
     }
 }
+
+

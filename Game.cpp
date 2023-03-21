@@ -7,10 +7,6 @@
 
 Log* consoleGame = new Log("Game");
 
-Pacman* pacman = nullptr;
-
-
-int count = 0;
 void Game::init() {
     if(SDL_Init( SDL_INIT_VIDEO ) < 0 )
     {
@@ -47,11 +43,15 @@ void Game::runGame() {
 
     while (isRunning) {
         handleEvent();
+
         pacman->update();
         pacman->updateClip();
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
         pacman->render();
+
         SDL_RenderPresent(renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
