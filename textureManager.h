@@ -12,7 +12,8 @@
 
 class textureManager {
 public:
-    static SDL_Texture* LoadTexture(const std::string& fileName, SDL_Renderer* renderer);
+    SDL_Texture* LoadTexture(const std::string& fileName, SDL_Renderer* renderer);
+    void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer);
 };
 
 

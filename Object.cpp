@@ -27,10 +27,9 @@ void Object::render() {
 
 Object::Object(const char *textureSheet, int x, int y, SDL_Renderer *renderer) {
     this->renderer = renderer;
-    objectTexture = textureManager::LoadTexture(textureSheet, renderer);
+    objectTexture = objectManager->LoadTexture(textureSheet, renderer);
     xPosition = x;
     yPosition = y;
-
 }
 
 Object::~Object() {

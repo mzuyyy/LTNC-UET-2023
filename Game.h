@@ -30,6 +30,8 @@ private:
     int frameTime{};
 
     Pacman* pacman = new Pacman("../Assets/pacmanTexture.png", 0, 0, renderer);
+
+    Map* map = new Map("../Assets/mapTexture.png", 280, 0, renderer);
 public:
     Game(){
         renderer = nullptr;

@@ -6,6 +6,8 @@
 #define BTL_PACMAN_H
 
 #include "Object.h"
+#include "logStatus.h"
+#include "textureManager.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string>
@@ -26,10 +28,13 @@ public:
 private:
     int xPosition;
     int yPosition;
-    int xVelocity = 0;
-    int yVelocity = 0;
+
     SDL_Texture* objectTexture{};
     SDL_Rect sourceRect{}, destinationRect{};
+
+    Log* consolePacman = new Log("Pacman");
+
+    textureManager* pacmanTexture = new textureManager();
 
     int widthFrame = 26;
     int heightFrame = 26;

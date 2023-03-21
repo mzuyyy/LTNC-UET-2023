@@ -8,7 +8,7 @@
 
 Pacman::Pacman(const char* textureSheet, int x, int y, SDL_Renderer *renderer) : Object(textureSheet, x, y, renderer) {
     this->renderer = renderer;
-    objectTexture = textureManager::LoadTexture(textureSheet, renderer);
+    objectTexture = pacmanTexture->LoadTexture(textureSheet, renderer);
     xPosition = x;
     yPosition = y;
 }

@@ -4,6 +4,8 @@
 
 #ifndef BTL_OBJECT_H
 #define BTL_OBJECT_H
+
+#include "textureManager.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_render.h>
@@ -15,6 +17,7 @@ protected:
     int yPosition;
 
     SDL_Texture* objectTexture;
+
     SDL_Rect sourceRect{}, destinationRect{};
     SDL_Renderer* renderer;
 public:
@@ -24,6 +27,8 @@ public:
     virtual void update();
 
     virtual void render();
+
+    textureManager* objectManager = new textureManager();
     bool isMovingDown = false;
     bool isMovingUp = false;
     bool isMovingLeft = false;

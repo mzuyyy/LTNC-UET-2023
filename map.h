@@ -5,6 +5,8 @@
 #pragma  once
 
 #include <iostream>
+#include "logStatus.h"
+#include "textureManager.h"
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -22,13 +24,15 @@ private:
     const int mapWidthFrame = 16;
     const int mapHeightFrame = 16;
 
-    SDL_Rect mapFrameClip[30];
+    SDL_Rect mapFrameClip[30]{};
+
+    Log* consoleMap = new Log("Map");
+
+    textureManager* mapTexture = new textureManager();
 public:
     Map(const char *textureSheet, int x, int y, SDL_Renderer *renderer);
 
     ~Map();
-
-    static int getTileID(int x, int y);
 
     void loadMap();
 
@@ -36,6 +40,6 @@ public:
 
     void  setMapFrameClip();
 
-    SDL_Rect sourceRect[31][28], destRect[31][28];
+    SDL_Rect sourceRect[31][28]{}, destRect[31][28]{};
 
 };
