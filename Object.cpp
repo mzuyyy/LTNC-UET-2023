@@ -6,32 +6,42 @@
 #include "textureManager.h"
 
 void Object::update() {
-    if (isMovingLeft) xPosition--;
-    else if(isMovingRight) xPosition++;
-    if (isMovingUp) yPosition--;
-    else if(isMovingDown) yPosition++;
+    if (objectDir["left"]) objectPosition.x--;
+    else if(objectDir["right"]) objectPosition.x++;
+    if (objectDir["up"]) objectPosition.y--;
+    else if(objectDir["down"]) objectPosition.y++;
 
     sourceRect.h = 21;
     sourceRect.w = 21;
     sourceRect.x = 0;
     sourceRect.y = 0;
 
-    destinationRect.x = xPosition;
-    destinationRect.y = yPosition;
-    destinationRect.w = sourceRect.w * 2;
-    destinationRect.h = sourceRect.h * 2;
+    destRect.x = objectPosition.x;
+    destRect.y = objectPosition.y;
+    destRect.w = sourceRect.w * 2;
+    destRect.h = sourceRect.h * 2;
 }
 void Object::render() {
-    SDL_RenderCopy(renderer, objectTexture, &sourceRect, &destinationRect);
+    SDL_RenderCopy(pacmanRenderer, objectTexture, &sourceRect, &destRect);
 }
 
-Object::Object(const char *textureSheet, int x, int y, SDL_Renderer *renderer) {
-    this->renderer = renderer;
-    objectTexture = objectManager->LoadTexture(textureSheet, renderer);
-    xPosition = x;
-    yPosition = y;
+Object::Object(const std::string &textureSheet, SDL_Renderer *renderer){
+    this->pacmanRenderer = renderer;
+    objectTexture = objectManager->loadTexture(textureSheet, pacmanRenderer);
+    objectPosition.x = defaultPosition.x;
+    objectPosition.y = defaultPosition.y;
 }
 
 Object::~Object() {
     SDL_DestroyTexture(objectTexture);
+}
+
+SDL_Point Object::getNextPosition() {
+    SDL_Point nextPosition = objectPosition;
+    if (objectDir["left"]) nextPosition.x--;
+    else if(objectDir["right"]) nextPosition.x++;
+    if (objectDir["down"]) nextPosition.y--;
+    else if(objectDir["down"]) nextPosition.y++;
+
+    return nextPosition;
 }

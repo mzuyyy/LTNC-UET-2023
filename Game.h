@@ -4,22 +4,19 @@
 #pragma once
 
 #include <iostream>
-#include "textureManager.h"
-#include "Object.h"
-#include "Pacman.h"
-#include "map.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_render.h>
 
 class Game {
 private:
-    static const int WINDOW_WIDTH = 1280;
-    static const int WINDOW_HEIGHT = 720;
+    static const int WINDOW_WIDTH = 882;
+    static const int WINDOW_HEIGHT = 498;
     const char* WINDOW_TITTLE = "Pac-man";
     static const int rendererFlags =  SDL_RENDERER_ACCELERATED;
 
     bool isRunning = false;
+    bool isPlaying = false;
 
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
@@ -29,9 +26,6 @@ private:
     Uint32 frameStart{};
     int frameTime{};
 
-    Pacman* pacman = new Pacman("../Assets/pacmanTexture.png", 0, 0, renderer);
-
-    Map* map = new Map("../Assets/mapTexture.png", 280, 0, renderer);
 public:
     Game(){
         renderer = nullptr;
@@ -43,8 +37,12 @@ public:
     };
     void init();
     void close();
-    void handleEvent();
+    void clean();
+
+    void render();
     void runGame();
+    SDL_Event handleEvent();
+
 };
 
 

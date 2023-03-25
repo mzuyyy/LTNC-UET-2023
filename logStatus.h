@@ -15,7 +15,7 @@ class Log{
             Log::location = area;
         }
         void updateStatus(const std::string& message){
-           std::cout << location << " : " << message << std::endl;
+           std::cerr << location << " : " << message << std::endl;
         }
 };
 #endif //BTL__LOG_H

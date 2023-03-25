@@ -6,47 +6,119 @@
 #include "Object.h"
 #include "textureManager.h"
 
-Pacman::Pacman(const char* textureSheet, int x, int y, SDL_Renderer *renderer) : Object(textureSheet, x, y, renderer) {
-    this->renderer = renderer;
-    objectTexture = pacmanTexture->LoadTexture(textureSheet, renderer);
-    xPosition = x;
-    yPosition = y;
+Pacman::Pacman(const std::string& textureSheet, SDL_Renderer *renderer) : Object(textureSheet, renderer) {
+    this->pacmanRenderer = renderer;
+    pacmanTexture = pacmanManager->loadTexture(textureSheet, renderer);
+
+    pacmanPosition.x= defaultPosition.x;
+    pacmanPosition.y = defaultPosition.y;
+
+    destRect.x = pacmanPosition.x;
+    destRect.y = pacmanPosition.y;
+    destRect.w = pacmanWidth;
+    destRect.h = pacmanHeight;
+
+    pacmanFrameCount = 3;
+    pacmanAnimationSpeed = 100;
+
+    Pacman::setPacmanFrameClip();
 }
 
-void Pacman::update() {
-    if (isMovingLeft) xPosition--;
-    else if(isMovingRight) xPosition++;
-    if (isMovingUp) yPosition--;
-    else if(isMovingDown) yPosition++;
+void Pacman::update(){
+    //Pacman::deleteOldFrame();
+    pacmanFrame = (SDL_GetTicks() / pacmanAnimationSpeed) % pacmanFrameCount;
+    if (pacmanDir["left"]){
+        pacmanPosition.x -= pacmanVelocity;
+    }
+    else if (pacmanDir["right"]){
+        pacmanPosition.x += pacmanVelocity;
+    }
+    else if (pacmanDir["up"] && pacmanPosition.y > 8) {
+        pacmanPosition.y -= pacmanVelocity;
+    }
+    else if (pacmanDir["down"] && pacmanPosition.y < 472) {
+        pacmanPosition.y += pacmanVelocity;
+    }
+    if (pacmanPosition.x <= 217 || pacmanPosition.x >= 643) {
+        pacmanPosition.x = pacmanPosition.x <= 217 ? 643 : 217;
+    }
+    if (pacmanPosition.y <= 16 || pacmanPosition.y >= 471)
+        pacmanPosition.y += pacmanPosition.y <= 0 ? 1 : -1;
 
-    destinationRect.x = xPosition;
-    destinationRect.y = yPosition;
-    destinationRect.w = widthFrame ;
-    destinationRect.h = heightFrame ;
+    destRect.x = pacmanPosition.x;
+    destRect.y = pacmanPosition.y;
+    destRect.w = pacmanWidth;
+    destRect.h = pacmanHeight;
 }
 
-void Pacman::render() {
-    if(isMovingUp){
-        SDL_RenderCopy(renderer, objectTexture, &frameClip[1], &destinationRect);
+void Pacman::deleteOldFrame() {
+    pacmanTexture = pacmanManager->loadTexture(deletePacmanTexture, pacmanRenderer);
+    pacmanManager->drawTexture(pacmanTexture, frameClip[12], destRect, pacmanRenderer);
+    pacmanTexture = pacmanManager->loadTexture(pacmanTextureSheet, pacmanRenderer);
+}
+void Pacman::render(){
+    if(pacmanDir["up"]) {
+        pacmanManager->drawTexture(pacmanTexture, frameClip[pacmanFrame], destRect, pacmanRenderer);
     }
-    else if(isMovingDown){
-        SDL_RenderCopy(renderer, objectTexture, &frameClip[4], &destinationRect);
+    else if (pacmanDir["down"]){
+        pacmanManager->drawTexture(pacmanTexture, frameClip[pacmanFrame + 3], destRect, pacmanRenderer);
     }
-    else if(isMovingLeft){
-        SDL_RenderCopy(renderer, objectTexture, &frameClip[7], &destinationRect);
+    else if (pacmanDir["left"]){
+        pacmanManager->drawTexture(pacmanTexture, frameClip[pacmanFrame + 6], destRect, pacmanRenderer);
     }
-    else if(isMovingRight){
-        SDL_RenderCopy(renderer, objectTexture, &frameClip[10], &destinationRect);
+    else if (pacmanDir["right"]){
+        pacmanManager->drawTexture(pacmanTexture, frameClip[pacmanFrame + 9], destRect, pacmanRenderer);
+    }
+    else{
+        pacmanManager->drawTexture(pacmanTexture, frameClip[0], destRect, pacmanRenderer);
     }
 }
-void Pacman::updateClip() {
-    if(widthFrame > 0 && heightFrame > 0){
-        for(int i = 0; i < 12; i++){
-            frameClip[i].x = 5 * i + widthFrame * i;
-            frameClip[i].y = 0;
-            frameClip[i].w = widthFrame;
-            frameClip[i].h = heightFrame;
-        }
+void Pacman::setPacmanFrameClip() {
+    for(int i = 0; i < 12; i++){
+        frameClip[i].x = 5 * i + widthFrame * i;
+        frameClip[i].y = 0;
+        frameClip[i].w = widthFrame;
+        frameClip[i].h = heightFrame;
+    }
+    frameClip[12] = {7 * 17, 2 * 17, 26, 26};
+}
+
+void Pacman::changeDirection(const std::string& direction) {
+    if (direction == "up") {
+        //if ((lenOfLine[direction] == 8 && !pacmanDir.isMovingUp) || pacmanDir.isMovingUp) {
+        pacmanDir["up"] = true;
+        pacmanDir["down"] = false;
+        pacmanDir["left"] = false;
+        pacmanDir["right"] = false;
+        //}
+    }
+    else if (direction == "down") {
+        //if((lenOfLine[direction] == 8 && !pacmanDir.isMovingDown) || pacmanDir.isMovingDown) {
+        pacmanDir["up"] = false;
+        pacmanDir["down"] = true;
+        pacmanDir["left"] = false;
+        pacmanDir["right"] = false;
+        //}
+    }
+    else if (direction == "left") {
+        //if((lenOfLine[direction] == 8 && !pacmanDir.isMovingLeft) || pacmanDir.isMovingLeft) {
+        pacmanDir["up"] = false;
+        pacmanDir["down"] = false;
+        pacmanDir["left"] = true;
+        pacmanDir["right"] = false;
+        //}
+    }
+    else if (direction == "right") {
+        //if ((lenOfLine[direction] == 8 && !pacmanDir.["right"]) || pacmanDir.["right"]) {
+        pacmanDir["up"] = false;
+        pacmanDir["down"] = false;
+        pacmanDir["left"] = false;
+        pacmanDir["right"] = true;
+        //}
     }
 }
+void Pacman::clean() {
+    pacmanManager->clean(pacmanTexture);
+}
+
 Pacman::~Pacman() = default;

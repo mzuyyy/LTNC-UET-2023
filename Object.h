@@ -10,29 +10,28 @@
 #include <SDL_image.h>
 #include <SDL_render.h>
 
-
 class Object {
 protected:
-    int xPosition;
-    int yPosition;
+    SDL_Point objectPosition{};
 
+    SDL_Point defaultPosition = {0, 0};
     SDL_Texture* objectTexture;
 
-    SDL_Rect sourceRect{}, destinationRect{};
-    SDL_Renderer* renderer;
+    SDL_Rect sourceRect{}, destRect{};
+    SDL_Renderer* pacmanRenderer = nullptr;
 public:
-    Object(const char* textureSheet, int x, int y, SDL_Renderer* renderer);
-    ~Object();
+    Object(const std::string &textureSheet, SDL_Renderer *renderer);
+        ~Object();
 
     virtual void update();
 
     virtual void render();
 
+    virtual SDL_Point getNextPosition();
+
     textureManager* objectManager = new textureManager();
-    bool isMovingDown = false;
-    bool isMovingUp = false;
-    bool isMovingLeft = false;
-    bool isMovingRight = false;
+
+    std::map<std::string,bool> objectDir;
 };
 #endif
 

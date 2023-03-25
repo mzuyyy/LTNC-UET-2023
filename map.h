@@ -12,9 +12,16 @@
 #include <SDL_image.h>
 #include "Object.h"
 
-class Map : public Object {
+class Map{
 private:
     std::string mapPath = "../Assets/map.txt";
+    std::string mapPNG = "../Assets/map.png";
+    std::string mapInversePNG = "../Assets/mapInverse.png";
+
+    double introDelay = 1;
+    int mapFrame;
+    int mapFrameCount;
+    int mapAnimationDelay = 100;
 
     static const int MAP_WIDTH = 28;
     static const int MAP_HEIGHT = 31;
@@ -24,22 +31,37 @@ private:
     const int mapWidthFrame = 16;
     const int mapHeightFrame = 16;
 
-    SDL_Rect mapFrameClip[30]{};
+    SDL_Rect mapFrameClip[32]{};
 
     Log* consoleMap = new Log("Map");
 
-    textureManager* mapTexture = new textureManager();
+    textureManager* mapManager = new textureManager();
+
+    std::vector<bool> isPacmanEaten;
+
+    bool isWall[448][498]{};
+
+    bool isPacmanThrough[MAP_HEIGHT][MAP_WIDTH]{};
+
+    SDL_Texture* mapTexture = nullptr;
 public:
-    Map(const char *textureSheet, int x, int y, SDL_Renderer *renderer);
+    Map(SDL_Renderer* renderer);
 
     ~Map();
 
+    void initAnimation(SDL_Renderer *renderer);
+
     void loadMap();
 
-    void renderMap(SDL_Renderer* renderer);
+    void renderMap(SDL_Renderer *renderer);
 
     void  setMapFrameClip();
 
-    SDL_Rect sourceRect[31][28]{}, destRect[31][28]{};
+    void update();
+
+    bool checkWall(SDL_Point position);
+
+    void clean();
+    SDL_Rect destRect[31][28]{};
 
 };
