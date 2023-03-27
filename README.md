@@ -10,7 +10,7 @@ Môn lập trình nâng cao lớp số 22 (INT2215 22)
 
 Giảng viên lý thuyết: [TS.Trần Thị Minh Châu](https://uet.vnu.edu.vn/~chauttm/)
 
-Giảng viên bài tập: CN.Kiều Hải Đăng 
+Giảng viên bài tập: ThS.Kiều Hải Đăng 
 
 ### Table of Contents
 **[Started](#started)**  
