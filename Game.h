@@ -10,8 +10,8 @@
 
 class Game {
 private:
-    static const int WINDOW_WIDTH = 882;
-    static const int WINDOW_HEIGHT = 498;
+    static const int WINDOW_WIDTH = 672;
+    static const int WINDOW_HEIGHT = 888;
     const char* WINDOW_TITTLE = "Pac-man";
     static const int rendererFlags =  SDL_RENDERER_ACCELERATED;
 
@@ -37,12 +37,12 @@ public:
     };
     void init();
     void close();
-    void clean();
-
-    void render();
     void runGame();
     SDL_Event handleEvent();
 
+    SDL_Renderer* getRenderer() const {
+        return renderer;
+    }
 };
 
 

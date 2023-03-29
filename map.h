@@ -10,18 +10,16 @@
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
-#include "Object.h"
-
+#include "Object/pacman.h"
 class Map{
 private:
     std::string mapPath = "../Assets/map.txt";
     std::string mapPNG = "../Assets/map.png";
     std::string mapInversePNG = "../Assets/mapInverse.png";
 
-    double introDelay = 1;
-    int mapFrame;
+    int introDelay = 100;
+    int mapFrame{};
     int mapFrameCount;
-    int mapAnimationDelay = 100;
 
     static const int MAP_WIDTH = 28;
     static const int MAP_HEIGHT = 31;
@@ -31,21 +29,18 @@ private:
     const int mapWidthFrame = 16;
     const int mapHeightFrame = 16;
 
+    const int mapWidthScreen = 24;
+    const int mapHeightScreen = 24;
+
     SDL_Rect mapFrameClip[32]{};
 
     Log* consoleMap = new Log("Map");
 
     textureManager* mapManager = new textureManager();
 
-    std::vector<bool> isPacmanEaten;
-
-    bool isWall[448][498]{};
-
-    bool isPacmanThrough[MAP_HEIGHT][MAP_WIDTH]{};
-
     SDL_Texture* mapTexture = nullptr;
 public:
-    Map(SDL_Renderer* renderer);
+    explicit Map(SDL_Renderer *renderer);
 
     ~Map();
 
@@ -59,9 +54,9 @@ public:
 
     void update();
 
-    bool checkWall(SDL_Point position);
+    static bool isWallAt(TileID tileID);
 
-    void clean();
+    static void removeDot(Pacman* pacman);
+
     SDL_Rect destRect[31][28]{};
-
 };

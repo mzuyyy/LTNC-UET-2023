@@ -4,8 +4,9 @@
 
 #include "Game.h"
 #include "logStatus.h"
-#include "map.h"
-#include "Pacman.h"
+#include "Object/Pacman.h"
+#include "Map.h"
+
 
 Log* consoleGame = new Log("Game");
 
@@ -48,27 +49,26 @@ void Game::close() {
 void Game::runGame() {
     frameStart = SDL_GetTicks();
 
-    pacman = new Pacman("../Assets/pacmanTexture.png", renderer);
+    pacman = new Pacman("../Assets/pacmanTexture.png", renderer, CLASSIC);
 
     map = new Map(renderer);
 
-    map->initAnimation(renderer);
+    //map->initAnimation(renderer);
 
     while (isRunning) {
         handleEvent();
 
-        map->update();
-
-        pacman->checkTouchWall(map->checkWall(pacman->nextPosition(handleEvent())));
-        pacman->update();
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         map->renderMap(renderer);
         pacman->render();
 
+        map->update();
+        pacman->update();
+
         SDL_RenderPresent(renderer);
+
+        pacman->checkMove(!Map::isWallAt(pacman->getNextTileID(pacman->getDirection().front())));
 
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
@@ -88,24 +88,16 @@ SDL_Event Game::handleEvent() {
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
                 case SDLK_UP:
-                    if (!map->checkWall(pacman->nextPosition(event))){
-                        pacman->changeDirection("up");
-                    }
+                    pacman->queueDirection(UP);
                     break;
                 case SDLK_DOWN:
-                    if(!map->checkWall(pacman->nextPosition(event))){
-                        pacman->changeDirection("down");
-                    }
+                    pacman->queueDirection(DOWN);
                     break;
                 case SDLK_LEFT:
-                    if(!map->checkWall(pacman->nextPosition(event))){
-                        pacman->changeDirection("left");
-                    }
+                    pacman->queueDirection(LEFT);
                     break;
                 case SDLK_RIGHT:
-                    if(!map->checkWall(pacman->nextPosition(event))){
-                        pacman->changeDirection("right");
-                    }
+                    pacman->queueDirection(RIGHT);
                     break;
                 case SDLK_ESCAPE:
                     isPlaying = false;
@@ -114,13 +106,3 @@ SDL_Event Game::handleEvent() {
     }
     return event;
 }
-
-void Game::clean() {
-    pacman->clean();
-    map->clean();
-}
-
-void Game::render() {
-
-}
-
