@@ -16,7 +16,7 @@ private:
     Log* consoleTexture = new Log("Texture");
     std::map<std::string, SDL_Texture*> mapTexture;
 public:
-    SDL_Texture * loadTexture(std::string path, SDL_Renderer* renderer);
+    SDL_Texture * loadTexture(const std::string& path, SDL_Renderer* renderer);
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer);
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer, SDL_RendererFlip flip);
     void clean(SDL_Texture* texture);

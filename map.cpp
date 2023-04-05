@@ -20,7 +20,7 @@ Map::Map(SDL_Renderer *renderer) {
         }
     }
     consoleMap->updateStatus("Map is created");
-    mapTexture = mapManager->loadTexture(mapPNG, renderer);
+    mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
 }
 
 Map::~Map() {
@@ -28,7 +28,7 @@ Map::~Map() {
 }
 
 void Map::loadMap(){
-    std::ifstream mapFile(mapPath);
+    std::ifstream mapFile(MAP_PATH_TXT);
     if(mapFile.is_open()){
         for (auto & i : tile)
             for (int & j : i)
@@ -66,12 +66,12 @@ void Map::initAnimation(SDL_Renderer *renderer) {
     mapFrame = (SDL_GetTicks() / introDelay) % mapFrameCount;
     switch (mapFrame) {
         case 1:
-            mapTexture = mapManager->loadTexture(mapPNG, renderer);
+            mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
         case 2:
-            mapTexture = mapManager->loadTexture(mapInversePNG, renderer);
+            mapTexture = mapManager->loadTexture(MAP_PATH_PNG_INVERSE, renderer);
     }
     Map::renderMap(renderer);
-    mapTexture = mapManager->loadTexture(mapPNG, renderer);
+    mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
 }
 
 void Map::removeDot(Pacman *pacman) {

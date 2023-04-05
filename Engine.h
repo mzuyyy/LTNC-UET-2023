@@ -2,11 +2,12 @@
 // Created by MZuy on 4/5/2023.
 //
 
-#ifndef BTL_SYSTEM_H
-#define BTL_SYSTEM_H
+#ifndef BTL_ENGINE_H
+#define BTL_ENGINE_H
 #include <SDL.h>
 #include "Audio.h"
 #include "Timer.h"
+#include "ControlManager.h"
 #include <set>
 
 const std::string GAME_CONFIG_PATH = "../config/game.config";
@@ -28,14 +29,13 @@ public:
     void update() const;
 
     void save(const std::string& path = GAME_CONFIG_PATH) const;
-    void saveHighScore(const std::string& path = HIGH_SCORE_PATH) const;
-
-    void close();
-
-    Log* consoleSystem = nullptr;
-    Timer* timer = nullptr;
+    void saveHighScore(const std::string &path, Uint32 score, int level);
 private:
-    std::multiset<int, std::greater<>> highScoreSet;
+    Log* consoleEngine = nullptr;
+    Timer* timer = nullptr;
+    Audio* audio = nullptr;
+    ControlManager* controlManager = nullptr;
+    std::multiset<Uint32, std::greater<>> highScoreSet;
 
     int lastLevel{};
     Uint32 lastScore{}, highScore{};
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif //BTL_SYSTEM_H
+#endif //BTL_ENGINE_H

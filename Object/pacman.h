@@ -6,22 +6,23 @@
 #define BTL_PACMAN_H
 
 #include "Object.h"
-#include "../textureManager.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_render.h>
 #include <string>
 #include <map>
+
 enum PACMAN_TYPE{
     CLASSIC = 0,
     ANDROID,
-    MS,
-    PACMAN_TYPE_TOTAL = 3,
+    PACMAN_TYPE_TOTAL
 };
 enum PACMAN_STATE
 {
-    PACMAN_INIT_STATE = 0,
+    PACMAN_START_STATE = 0,
     PACMAN_NEW_STATE,
+    PACMAN_STAND_STATE,
+    PACMAN_RUNNING_STATE,
     PACMAN_EATING_STATE,
     PACMAN_DEATH_STATE,
     PACMAN_STATE_TOTAL
@@ -39,22 +40,44 @@ enum PACMAN_POWER_STATE
     FREEZE_PACMAN,
     PACMAN_POWER_STATE_TOTAL
 };
+const int PACMAN_EATING_STATE_TIME = 960;
 const int UPGRADE_TIME[PACMAN_POWER_STATE_TOTAL] = {0, 8000, 4000, 3000, 4000, 4000, 5000,  5500, 3000};
+const int PACMAN_VELOCITY = 2;
+const int PACMAN_VELOCITY_SLOW = 1;
+const int PACMAN_MAX_HEALTH = 5;
+const int PACMAN_FRAME_VALUE = 5;
+const int PACMAN_SLOW_FRAME_VALUE = 10;
+const int PACMAN_DEATH_ANIMATION_FRAME = 11;
+const int PACMAN_DEATH_SPRITE_TOTAL = 11;
+const int PACMAN_ANIMATION_SPEED = 100;
+
+const std::string CLASSIC_PACMAN_TEXTURE_SHEET = "../Assets/classicPacmanTexture.png";
+const std::string ANDROID_PACMAN_TEXTURE_SHEET = "../Assets/androidPacmanTexture.png";
+const std::string DEAD_PACMAN_TEXTURE_SHEET = "../Assets/PacmanDead.png";
+
 class Pacman : public Object{
 public:
-    Pacman(const std::string &textureSheet, SDL_Renderer *renderer, PACMAN_TYPE type = CLASSIC);
+    Pacman(SDL_Renderer *renderer, PACMAN_TYPE type);
+
     ~Pacman();
 
     void update() override;
     void render() override;
     void setPacmanFrameClip();
     void queueDirection(Direction direction);
-    void move() override;
+    void move(Position velocity) override;
     void stop();
     void setState(PACMAN_STATE state);
+    void handleState();
+    void setPower(PACMAN_POWER_STATE type);
+    void removePower(PACMAN_POWER_STATE type);
+    void handlePower();
 
+    PACMAN_STATE getState(){
+        return pacmanState;
+    }
     void resetPosition(){
-        tileID = startTilePosition;
+        tileID = startTileID;
     }
     Position getPosition() override{
         Position temp = position;
@@ -76,12 +99,21 @@ public:
             temp.x++;
         return temp;
     }
-    std::queue<Direction> getDirection(){
+    std::queue<Direction> getDirectionQueue(){
         return directionQueue;
+    }
+    Direction getDirection(){
+        return (directionQueue.empty() ? NONE : directionQueue.front());
+    }
+    Direction getNextDirection(){
+        return directionQueue.empty() ? NONE : directionQueue.back();
     }
     void eatDot(){
         eatenDot++;
     };
+    void eatFruit(){
+        eatenFruit++;
+    }
     void setDead(){
         isDead = true;
     }
@@ -89,23 +121,31 @@ public:
         CanMove = check;
         std::cerr << "Can Move ? " << CanMove << std::endl;
     }
+    void setPacmanType (PACMAN_TYPE type){
+        pacmanType = type;
+    }
 private:
-    PACMAN_STATE pacmanState = PACMAN_INIT_STATE;
-    PACMAN_TYPE type;
+    bool power[PACMAN_POWER_STATE_TOTAL]{};
+    Uint32 startPower[PACMAN_POWER_STATE_TOTAL]{};
+    PACMAN_STATE pacmanState;
+    PACMAN_TYPE pacmanType;
 
-    int pacmanHealth = 5;
+    const PACMAN_STATE pacmanStartState = PACMAN_START_STATE;
+
+    int pacmanHealth = PACMAN_MAX_HEALTH;
 
     bool isDead = false;
 
-    int pacmanVelocity = 1;
-
     bool CanMove = true;
+
+    Uint32 pacmanVelocity{};
 
     SDL_Renderer* pacmanRenderer = nullptr;
 
     SDL_Texture* pacmanTexture{};
-
-    SDL_Rect destRect{};
+    SDL_Texture* classicPacmanTexture{};
+    SDL_Texture* pacmanDeadTexture{};
+    SDL_Texture* androidPacmanTexture{};
 
     textureManager* pacmanManager = new textureManager();
 
@@ -115,12 +155,14 @@ private:
     int pacmanWidth = 24;
     int pacmanHeight = 24;
 
-    const TileID startTilePosition = *new TileID(13, 23);
+    const TileID startTileID = {13,23};
 
-    SDL_Rect frameClip[9]{};
-    std::string pacmanTextureSheet = "../Assets/pacmanTexture.png";
+    SDL_Rect frameClip[12]{};
 
-    int eatenDot = 0;
+    Uint32 eatenDot = 0;
+    Uint32 eatenFruit = 0;
+
+    Uint32 startState{};
 };
 
 

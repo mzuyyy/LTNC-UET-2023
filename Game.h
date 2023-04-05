@@ -3,10 +3,12 @@
 //
 #pragma once
 
-#include <iostream>
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_render.h>
+#include "Engine.h"
+#include "Object/Pacman.h"
+#include "logStatus.h"
+#include "Map.h"
+#include <set>
+
 
 class Game {
 private:
@@ -18,14 +20,18 @@ private:
     bool isRunning = false;
     bool isPlaying = false;
 
+    Log* consoleGame = nullptr;
+    Pacman* pacman = nullptr;
+    Map* map = nullptr;
+
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+
     const int FPS = 240;
     int frameDelay = 1000/FPS;
 
     Uint32 frameStart{};
     int frameTime{};
-
 public:
     Game(){
         renderer = nullptr;
@@ -36,8 +42,13 @@ public:
         window = nullptr;
     };
     void init();
+    void load(const std::string &path);
+    void loadHighScore();
+    void save();
+    void saveHighScore();
     void close();
     void runGame();
+
     SDL_Event handleEvent();
 
     SDL_Renderer* getRenderer() const {

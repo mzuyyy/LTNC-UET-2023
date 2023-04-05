@@ -3,17 +3,11 @@
 //
 
 #include "Game.h"
-#include "logStatus.h"
-#include "Object/Pacman.h"
-#include "Map.h"
-
-
-Log* consoleGame = new Log("Game");
-
-Pacman* pacman = nullptr;
-Map* map = nullptr;
 
 void Game::init() {
+    consoleGame = new Log("Game");
+    consoleGame->updateStatus("Init game...");
+
     if(SDL_Init( SDL_INIT_VIDEO ) < 0 )
     {
         consoleGame->updateStatus(SDL_GetError());
@@ -49,7 +43,7 @@ void Game::close() {
 void Game::runGame() {
     frameStart = SDL_GetTicks();
 
-    pacman = new Pacman("../Assets/pacmanTexture.png", renderer, CLASSIC);
+    pacman = new Pacman(renderer, CLASSIC);
 
     map = new Map(renderer);
 
@@ -68,7 +62,7 @@ void Game::runGame() {
 
         SDL_RenderPresent(renderer);
 
-        pacman->checkMove(!Map::isWallAt(pacman->getNextTileID(pacman->getDirection().front())));
+        pacman->checkMove(!Map::isWallAt(pacman->getNextTileID(pacman->getDirectionQueue().front())));
 
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
@@ -105,4 +99,20 @@ SDL_Event Game::handleEvent() {
             }
     }
     return event;
+}
+
+void Game::load(const std::string &path) {
+
+}
+
+void Game::loadHighScore() {
+
+}
+
+void Game::save() {
+
+}
+
+void Game::saveHighScore() {
+
 }

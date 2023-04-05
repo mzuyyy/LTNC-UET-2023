@@ -3,3 +3,7 @@
 //
 
 #include "Resources.h"
+
+void Resources::init(textureManager *textureManager) {
+
+}

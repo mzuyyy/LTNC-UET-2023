@@ -8,6 +8,10 @@
 #include "textureManager.h"
 #include "logStatus.h"
 
+const SDL_Rect MAIN_VIEW_POINT = {12, 12, 672, 888};
+const SDL_Rect PLAYING_VIEW_POINT = {12, 84, 672, 888};
+const SDL_Rect GAME_STATUS_VIEW_PORT = MAIN_VIEW_POINT;
+
 const int RESOURCES_PIXEL = 24;
 enum RESOURCES_TYPE
 {
@@ -16,7 +20,7 @@ enum RESOURCES_TYPE
     SETTING_BUTTON,
     PACMAN,
     OBJECT,
-    LABYRINTH,
+    MAP,
     NUMBER,
     WORDS,
     SCORE,
@@ -73,9 +77,9 @@ const int SETTING_BUTTON_TYPE_SPRITE[SETTING_BUTTON_TYPE_TOTAL] = {11, 11, 3, 3}
 
 enum PACMAN_TYPE
 {
-    PACMAN_CLASSIC = 0,
-    PACMAN_ANDROID,
-    PACMAN_MS,
+    CLASSIC = 0,
+    ANDROID,
+    MS,
     PACMAN_TYPE_TOTAL
 };
 const int PACMAN_ANIMATION_FRAME = 5;
@@ -86,7 +90,7 @@ enum PACMAN_SPRITE{
     PACMAN_RIGHT,
     PACMAN_SPRITE_TOTAL,
 };
-const int OBJECT_PIXEL = 16;
+const int OBJECT_PIXEL = 42;
 enum OBJECT_TYPE
 {
     OBJECT_PACMAN = 0,
@@ -150,8 +154,8 @@ enum DOT_SPRITE{
     TIME_FREE_DOT,
     DOT_SPRITE_TOTAL,
 };
-const int DOT_STATUS_WIDTH = 24;
-const int DOT_STATUS_HEIGHT = 24;
+const int DOT_STATUS_WIDTH = 42;
+const int DOT_STATUS_HEIGHT = 42;
 enum DOT_STATUS{
     POWER_DOT_STATUS = 0,
     CONFUSED_STATUS,
@@ -183,6 +187,7 @@ enum MAP_TYPE{
 };
 const int NUMBER_WIDTH = 24;
 const int NUMBER_HEIGHT = 24;
+const int NUMBER_TOTAL = 10;
 enum NUMBER_TYPE {
     NUMBER_DEFAULT = 0,
     NUMBER_BLUE,
@@ -204,40 +209,40 @@ enum SCORE_TYPE{
     SCORE_EAT_FRUIT = 8,
     SCORE_TYPE_TOTAL = 16,
 };
-const int FRUIT_WIDTH = 24;
-const int FRUIT_HEIGHT = 24;
+const int FRUIT_WIDTH = 42;
+const int FRUIT_HEIGHT = 42;
 const int FRUIT_ANIMATION_FRAME = 4;
 const int FRUIT_SPRITE_TOTAL = 4;
 enum FRUIT_TYPE
 {
-    FRUIT_CHERRY = 0,
-    FRUIT_STRAWBERRY,
-    FRUIT_ORANGE,
-    FRUIT_APPLE,
-    FRUIT_MELON,
-    FRUIT_BANANA,
-    FRUIT_WATER_MELON,
-    FRUIT_MANGO,
+    CHERRY = 0,
+    STRAWBERRY,
+    ORANGE,
+    APPLE,
+    MELON,
+    BANANA,
+    WATERMELON,
+    MANGO,
     FRUIT_TYPE_TOTAL
 };
-const int UNIQUE_GHOST_WIDTH = 24;
-const int UNIQUE_GHOST_HEIGHT = 24;
+const int UNIQUE_GHOST_WIDTH = 42;
+const int UNIQUE_GHOST_HEIGHT = 42;
 const int UNIQUE_GHOST_ANIMATION_FRAME = GHOST_ANIMATION_FRAME;
 enum UNIQUE_GHOST_TYPE{
-    UNIQUE_GHOST_MYSTERY = 0,
-    UNIQUE_GHOST_DEADLY,
-    UNIQUE_GHOST_SPEEDY,
-    UNIQUE_GHOST_INVISY,
-    UNIQUE_GHOST_FREEZY,
-    UNIQUE_GHOST_GOLDEN,
-    UNIQUE_GHOST_GOLDEN_EXHAUSTED,
-    UNIQUE_GHOST_GOLDEN_DEATH,
+    MYSTERY = 0,
+    DEADLY,
+    SPEEDY,
+    INVISY,
+    FREEZY,
+    GOLDEN,
+    GOLDEN_EXHAUSTED,
+    GOLDEN_DEATH,
     UNIQUE_GHOST_TYPE_TOTAL
 };
-enum UNIQUE_GHOST_EXHAUSTED_TYPE{
-    UNIQUE_GHOST_EXHAUSTED_DEFAULT = 0,
-    UNIQUE_GHOST_EXHAUSTED_YELLOW,
-    UNIQUE_GHOST_EXHAUSTED_TYPE_TOTAL
+enum UNIQUE_GHOST_GOLDEN_EXHAUSTED_TYPE{
+    UNIQUE_GHOST_GOLDEN_EXHAUSTED_DEFAULT = 0,
+    UNIQUE_GHOST_GOLDEN_EXHAUSTED_YELLOW,
+    UNIQUE_GHOST_GOLDEN_EXHAUSTED_TYPE_TOTAL
 };
 const int UNIQUE_GHOST_MYSTERY_ANIMATION_FRAME = GHOST_ANIMATION_FRAME;
 
@@ -274,18 +279,18 @@ enum SPEECH_UPGRADE_TYPE
     SPEECH_UPGRADE_CLYDE,
     SPEECH_UPGRADE_TOTAL
 };
-const int SPEECH_UPGRADE_WIDTH = 44*3;
-const int SPEECH_UPGRADE_HEIGHT = 26*3;
+const int SPEECH_UPGRADE_WIDTH = 132;
+const int SPEECH_UPGRADE_HEIGHT = 78;
 
 const int SPEECH_SHOW_UP_TOTAL = 2;
-const int SPEECH_SHOW_UP_WIDTH = 52*3;
-const int SPEECH_SHOW_UP_HEIGHT = 26*3;
+const int SPEECH_SHOW_UP_WIDTH = 156;
+const int SPEECH_SHOW_UP_HEIGHT = 78;
 
 ///HP bar
-const int HP_BAR_WIDTH = 112*3;
-const int HP_BAR_HEIGHT = 16*3;
-const int HP_WIDTH = 104*3;
-const int HP_HEIGHT = 8*3;
+const int HP_BAR_WIDTH = 336;
+const int HP_BAR_HEIGHT = 48;
+const int HP_WIDTH = 312;
+const int HP_HEIGHT = 24;
 class Resources {
 public:
     Resources();
@@ -300,6 +305,77 @@ public:
     void free();
 
     void close();
+
+    SDL_Texture* getTexture(const RESOURCES_TYPE type);
+
+    SDL_Rect getRect(const RESOURCES_TYPE type, const int index);
+
+    SDL_Rect getSprite(const BACKGROUND_TYPE type);
+    SDL_Rect getSprite(const BUTTON_TYPE type, const bool clickable);
+    SDL_Rect getSprite(const SETTING_BUTTON_TYPE type, const bool clickable, const int currentState);
+    SDL_Rect getSprite(const OBJECT_TYPE type, const int spriteValue = 0);
+    SDL_Rect getSprite(const MAP_TYPE type);
+    SDL_Rect getSprite(const NUMBER_TYPE type, const int num);
+    SDL_Rect getSprite(const SCORE_TYPE type, const int spriteValue);
+    SDL_Rect getSprite(const FRUIT_TYPE type, const int spriteValue = 0);
+    SDL_Rect getSprite(const SPEECH_TYPE type, const int spriteValue = 0);
+    SDL_Rect getHealthBarSprite();
+    SDL_Rect getHealthSprite(const Uint16 currentHealth, const Uint16 maxHealth);
+
+private:
+    Log* consoleResources = new Log("Resources");
+
+    SDL_Texture* background;
+    SDL_Texture* button;
+    SDL_Texture* setting_button;
+    SDL_Texture* pacman;
+    SDL_Texture* object;
+    SDL_Texture* labyrinth;
+    SDL_Texture* number;
+    SDL_Texture* alphabet;
+    SDL_Texture* score;
+    SDL_Texture* fruit;
+    SDL_Texture* unique_ghost;
+    SDL_Texture* speech;
+
+    ///Sprites
+    SDL_Rect backgroundSprite[BACKGROUND_TYPE_TOTAL];
+    SDL_Rect buttonSprite[BUTTON_TYPE_TOTAL][BUTTON_SPRITE_TOTAL];
+    SDL_Rect* settingButtonSprite[SETTING_BUTTON_TYPE_TOTAL][SETTING_BUTTON_SPRITE_TOTAL];
+    SDL_Rect frightenedGhost[FRIGHTENED_GHOST_SPRITE_TOTAL];
+    SDL_Rect eatenGhost[EATEN_GHOST_SPRITE_TOTAL];
+    SDL_Rect pacmanSprite[PACMAN_SPRITE_TOTAL];
+    SDL_Rect msPacmanSprite[PACMAN_SPRITE_TOTAL];
+    SDL_Rect pacmanAndroidSprite[PACMAN_SPRITE_TOTAL];
+    SDL_Rect blinky[GHOST_SPRITE_TOTAL];
+    SDL_Rect mystery[UNIQUE_GHOST_MYSTERY_SPRITE_TOTAL];
+    SDL_Rect deadly[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect pinky[GHOST_SPRITE_TOTAL];
+    SDL_Rect speedy[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect inky[GHOST_SPRITE_TOTAL];
+    SDL_Rect invisy[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect clyde[GHOST_SPRITE_TOTAL];
+    SDL_Rect freezy[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect golden[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect goldenExhausted[UNIQUE_GHOST_GOLDEN_EXHAUSTED_TYPE_TOTAL][UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect goldenDeath[UNIQUE_GHOST_SPRITE_TOTAL];
+    SDL_Rect pacmanDeath[PACMAN_DEATH_SPRITE_TOTAL];
+    SDL_Rect dot[DOT_SPRITE_TOTAL];
+    SDL_Rect dotStatus[DOT_STATUS_TOTAL];
+    SDL_Rect level[FRUIT_TYPE_TOTAL];
+    SDL_Rect bell, key, pacmanLife;
+    SDL_Rect mapSprite[MAP_TYPE_TOTAL];
+    SDL_Rect numberSprite[NUMBER_TYPE_TOTAL][NUMBER_TOTAL];
+    SDL_Rect wordsSprite[WORDS_TYPE_TOTAL][WORDS_TOTAL];
+    SDL_Rect scoreSprite[SCORE_TYPE_TOTAL];
+    SDL_Rect fruitSprite[FRUIT_TYPE_TOTAL][FRUIT_SPRITE_TOTAL];
+    SDL_Rect speechUpgrade[SPEECH_UPGRADE_TOTAL];
+    SDL_Rect speechShowUp[SPEECH_SHOW_UP_TOTAL];
+    SDL_Rect healthBar, healthPoint;
+
+    ///Texture
+    textureManager* resourcesManager;
+
 };
 
 

@@ -7,16 +7,19 @@
 #include <iostream>
 #include "logStatus.h"
 #include "textureManager.h"
+#include "Object/Object.h"
+#include "Object/pacman.h"
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
-#include "Object/pacman.h"
+
+std::string MAP_PATH_TXT = "../Assets/map.txt";
+std::string MAP_PATH_PNG = "../Assets/map.png";
+std::string MAP_PATH_PNG_INVERSE = "../Assets/mapInverse.png";
+
 class Map{
 private:
-    std::string mapPath = "../Assets/map.txt";
-    std::string mapPNG = "../Assets/map.png";
-    std::string mapInversePNG = "../Assets/mapInverse.png";
-
+    friend Object;
     int introDelay = 100;
     int mapFrame{};
     int mapFrameCount;

@@ -3,7 +3,7 @@
 //
 
 #include "textureManager.h"
-SDL_Texture* textureManager::loadTexture(std::string path, SDL_Renderer* renderer) {
+SDL_Texture* textureManager::loadTexture(const std::string& path, SDL_Renderer* renderer) {
     consoleTexture->updateStatus("Loading texture: " + path);
     SDL_Surface* tempSurface = IMG_Load(path.c_str());
     if (tempSurface == nullptr)

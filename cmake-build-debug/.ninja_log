@@ -1,0 +1,16 @@
+# ninja log v5
+5	1649	7018164834879762	CMakeFiles/BTL.dir/main.cpp.obj	6ce21b696a34b08f
+48	7687	7022586152528951	CMakeFiles/BTL.dir/textureManager.cpp.obj	8def1bfc8d1e925d
+38	6207	7014233670782473	CMakeFiles/BTL.dir/Object.cpp.obj	f4d09007fdfe2edf
+12	2722	7015616837741902	CMakeFiles/BTL.dir/pacman.cpp.obj	47cc518d19e582e4
+40	7673	7022586152346531	CMakeFiles/BTL.dir/map.cpp.obj	82067893cf2ede9d
+1	284	7023673348730688	build.ninja	d4a10a9009d73e5
+14	7896	7022586154617973	CMakeFiles/BTL.dir/Game.cpp.obj	b3e822506f457b1
+2791	3099	7019436402873818	BTL.exe	2e7e22d4c9d4a7ad
+44	7811	7022586153767735	CMakeFiles/BTL.dir/Menu.cpp.obj	9de5b284b79f40a9
+60	4130	7019435179441998	CMakeFiles/BTL.dir/Object/pacman.cpp.obj	a88b168a158cf377
+52	7778	7022586153432276	CMakeFiles/BTL.dir/Object/Object.cpp.obj	411ab76baabe47a2
+63	7646	7022586152034863	CMakeFiles/BTL.dir/Object/Ghost.cpp.obj	52a6858e2903a1b3
+6	4499	7016812824667894	CMakeFiles/BTL.dir/PlayState.cpp.obj	52c726fd82c64748
+68	7559	7022586151074493	CMakeFiles/BTL.dir/Resources.cpp.obj	7659ffbdcc0daea1
+71	3948	7019435177631943	CMakeFiles/BTL.dir/Timer.cpp.obj	b07a956a1ead38bc
