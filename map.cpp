@@ -8,13 +8,12 @@
 int Map::tile[MAP_HEIGHT][MAP_WIDTH];
 
 Map::Map(SDL_Renderer *renderer) {
-    mapFrameCount = 2;
     loadMap();
     setMapFrameClip();
     for(int i = 0; i < MAP_HEIGHT; i++){
         for(int j = 0; j < MAP_WIDTH; j++){
             destRect[i][j].x = j * mapWidthScreen;
-            destRect[i][j].y = 72 + i * mapHeightScreen;
+            destRect[i][j].y = 24 * 3 + i * mapHeightScreen;
             destRect[i][j].w = mapWidthScreen;
             destRect[i][j].h = mapHeightScreen;
         }
@@ -25,10 +24,11 @@ Map::Map(SDL_Renderer *renderer) {
 
 Map::~Map() {
     consoleMap->updateStatus("Map is destroyed");
+    delete consoleMap;
 }
 
 void Map::loadMap(){
-    std::ifstream mapFile(MAP_PATH_TXT);
+    std::ifstream mapFile(MAP_PATH);
     if(mapFile.is_open()){
         for (auto & i : tile)
             for (int & j : i)
@@ -62,18 +62,6 @@ void Map::update() {
 
 }
 
-void Map::initAnimation(SDL_Renderer *renderer) {
-    mapFrame = (SDL_GetTicks() / introDelay) % mapFrameCount;
-    switch (mapFrame) {
-        case 1:
-            mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
-        case 2:
-            mapTexture = mapManager->loadTexture(MAP_PATH_PNG_INVERSE, renderer);
-    }
-    Map::renderMap(renderer);
-    mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
-}
-
 void Map::removeDot(Pacman *pacman) {
     if (tile[pacman->getTileID().y][pacman->getTileID().x] == 26){
         tile[pacman->getTileID().y][pacman->getTileID().x] = 30;
@@ -83,12 +71,14 @@ void Map::removeDot(Pacman *pacman) {
         tile[pacman->getTileID().y][pacman->getTileID().x] = 30;
         pacman->eatDot();
     }
+
 }
 
-bool Map::isWallAt(TileID tileID) {
-    std::cerr << "Tile = " << tile[tileID.y][tileID.x] << std::endl;
-    return tile[tileID.y][tileID.x] != 30 && tile[tileID.y][tileID.x] != 26 && tile[tileID.y][tileID.x] != 27;
+bool Map::isWallAt(Position position) {
+    std::cerr << "Tile[" << position.y / 24 << "][" << position.x / 24 << "] : " << tile[position.y / 24][position.x / 24] << std::endl;
+    return  tile[position.y / 24][position.x / 24] != 30 && tile[position.y / 24][position.x / 24] != 26 && tile[position.y / 24][position.x / 24] != 27;
 }
+
 
 
 

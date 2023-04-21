@@ -48,6 +48,7 @@ enum OBJECT_TYPE
     OBJECT_TYPE_TOTAL
 };
 const int OBJECT_PIXEL = 42;
+const int OBJECT_SIZE = 42;
 const std::string OBJECT_TEXTURE_SHEET = "../Assets";
 struct Position{
     int x;
@@ -79,9 +80,13 @@ protected:
 
     std::queue<Direction> directionQueue;
     std::deque<TileID> lastPoint;
+    int lastAlphaMod{};
+    SDL_Rect lastDest{};
 
-    int frame{};
+    Uint32 frame{};
     int frameCount{};
+
+    int health{};
 public:
     explicit Object(const std::string &textureSheet = OBJECT_TEXTURE_SHEET, SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_PACMAN, Timer* _timer = nullptr);
         ~Object();
@@ -100,8 +105,7 @@ public:
 
     bool checkPosition() const;
 
-    bool checkCollision(Object* object);
-    void checkTunnel();
+    bool checkCollision(Object* object) const;
     textureManager* objectManager = new textureManager();
 
 

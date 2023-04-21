@@ -30,7 +30,7 @@ enum EFFECT_TYPE
     BOSS_DEATH,
     EFFECT_TYPE_TOTAL
 };
-const int TOTAL_PATH_AUDIO = MUSIC_TYPE_TOTAL + EFFECT_TYPE_TOTAL;
+const int TOTAL_PATH_AUDIO = 17;
 const std::string AUDIO_PATH[TOTAL_PATH_AUDIO] = {
         "../Assets/Sound/game_start.wav",
         "../Assets/Sound/game_pause.wav",

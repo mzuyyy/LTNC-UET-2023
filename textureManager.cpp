@@ -29,6 +29,16 @@ void textureManager::clean(SDL_Texture *texture) {
     SDL_DestroyTexture(texture);
 }
 
+SDL_Texture *textureManager::setTextureAlphaMod(SDL_Texture *texture, Uint8 alpha) {
+    SDL_SetTextureAlphaMod(texture, alpha);
+    return texture;
+}
+
+SDL_Texture *textureManager::sdlTextureBlendMod(SDL_Texture *texture, SDL_BlendMode blendMode) {
+    SDL_SetTextureBlendMode(texture, blendMode);
+    return texture;
+}
+
 
 
 

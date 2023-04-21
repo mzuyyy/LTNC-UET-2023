@@ -16,7 +16,7 @@ Object::Object(const std::string &textureSheet, SDL_Renderer *renderer, OBJECT_T
 }
 void Object::update() {
     position = {tileID.x * 24, tileID.y * 24};
-    destRect = {position.x - 12, position.y - 12, OBJECT_PIXEL, OBJECT_PIXEL};
+    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
 }
 void Object::render() {
     SDL_RenderCopy(objectRenderer, objectTexture, &sourceRect, &destRect);
@@ -36,32 +36,22 @@ Position Object::getPosition() {
 void Object::move(Position _velocity) {
     position.x += _velocity.x;
     position.y += _velocity.y;
-    destRect = {position.x - 12, position.y - 12, OBJECT_PIXEL, OBJECT_PIXEL};
+    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
     if (checkPosition()){
-        tileID = {position.x / 24, position.y / 24};
+        tileID = {position.x / 21, position.y / 21};
     }
 }
 
-bool Object::checkPosition() const {
-    return (position.x % 24 == 0 && position.y % 24 == 0);
+bool Object::checkPosition() const{
+    std::cerr << "x = " << position.x + 21 << ", y =  " << position.y  - 72 + 21 << std::endl;
+    return (position.x + 21 % 12 == 0 && position.y - 72 + 21 % 12 == 0);
 }
-bool Object::checkCollision(Object *object) {
-    return (position.x + OBJECT_PIXEL - 36 <= object->getPosition().x) ||
-           (position.y >= object->getPosition().y + OBJECT_PIXEL - 36) ||
-           (position.x >= object->getPosition().x + OBJECT_PIXEL - 26)||
-           (position.y  + OBJECT_PIXEL - 36 <= object->getPosition().y);
-}
-void Object::checkTunnel() {
-    if (checkPosition()){
-        if (tileID.x == 28)
-            tileID = {0, tileID.y};
-        if (tileID.x == -1)
-            tileID = {27, tileID.y};
-        if (tileID.y == 31)
-            tileID = {tileID.x, 0};
-        if (tileID.y == -1)
-            tileID = {tileID.x, 30};
-    }
+
+bool Object::checkCollision(Object *object) const {
+    return (position.x + OBJECT_SIZE - 31 <= object->getPosition().x) ||
+           (position.y >= object->getPosition().y + OBJECT_SIZE - 31) ||
+           (position.x >= object->getPosition().x + OBJECT_SIZE - 31) ||
+           (position.y + OBJECT_SIZE - 31 <= object->getPosition().y);
 }
 
 void Object::setTileID(TileID tileID) {
@@ -71,6 +61,6 @@ void Object::setTileID(TileID tileID) {
 
 void Object::setPosition(Position position) {
     this->position = position;
-    destRect = {position.x - 12, position.y - 12, OBJECT_PIXEL, OBJECT_PIXEL};
+    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
     tileID = {position.x / 24, position.y / 24};
 }

@@ -15,7 +15,7 @@ ControlManager::~ControlManager() {
     consoleControlManager = nullptr;
 }
 void ControlManager::setControlType(int type) {
-    for (int i = 0; i < CONTROL_DIRECTION_TOTAL; i++) {
+    for (int i = 0; i < 4; i++) {
         keyCode[i] = CONTROL_TYPE[type][i];
     }
 }

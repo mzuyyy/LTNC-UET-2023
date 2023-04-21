@@ -4,7 +4,8 @@
 #pragma once
 
 #include "Engine.h"
-#include "Object/Pacman.h"
+#include "Objects/Pacman.h"
+#include "Objects/Ghost.h"
 #include "logStatus.h"
 #include "Map.h"
 #include <set>
@@ -22,6 +23,10 @@ private:
 
     Log* consoleGame = nullptr;
     Pacman* pacman = nullptr;
+    Ghost* blinky = nullptr;
+    Ghost* pinky = nullptr;
+    Ghost* inky = nullptr;
+    Ghost* clyde = nullptr;
     Map* map = nullptr;
 
     SDL_Window* window = nullptr;

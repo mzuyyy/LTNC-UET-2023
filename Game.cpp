@@ -45,9 +45,12 @@ void Game::runGame() {
 
     pacman = new Pacman(renderer, CLASSIC);
 
-    map = new Map(renderer);
+    blinky = new Ghost(BLINKY,{0,0}, renderer);
+    inky = new Ghost(INKY,{0,1}, renderer);
+    pinky = new Ghost(PINKY,{0,2}, renderer);
+    clyde = new Ghost(CLYDE,{0,3}, renderer);
 
-    //map->initAnimation(renderer);
+    map = new Map(renderer);
 
     while (isRunning) {
         handleEvent();
@@ -56,13 +59,16 @@ void Game::runGame() {
 
         map->renderMap(renderer);
         pacman->render();
-
+        blinky->render();
+        inky->render();
+        pinky->render();
+        clyde->render();
         map->update();
         pacman->update();
 
         SDL_RenderPresent(renderer);
 
-        pacman->checkMove(!Map::isWallAt(pacman->getNextTileID(pacman->getDirectionQueue().front())));
+        pacman->checkMove(!Map::isWallAt(pacman->getNextPosition()));
 
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)

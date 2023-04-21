@@ -7,22 +7,19 @@
 #include <iostream>
 #include "logStatus.h"
 #include "textureManager.h"
-#include "Object/Object.h"
-#include "Object/pacman.h"
+#include "Objects/Object.h"
+#include "Objects/pacman.h"
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
 
-std::string MAP_PATH_TXT = "../Assets/map.txt";
-std::string MAP_PATH_PNG = "../Assets/map.png";
-std::string MAP_PATH_PNG_INVERSE = "../Assets/mapInverse.png";
-
 class Map{
 private:
+    std::string MAP_PATH = "../Assets/map.txt";
+    std::string MAP_PATH_PNG = "../Assets/map.png";
+    std::string MAP_PATH_PNG_INVERSE = "../Assets/mapInverse.png";
+
     friend Object;
-    int introDelay = 100;
-    int mapFrame{};
-    int mapFrameCount;
 
     static const int MAP_WIDTH = 28;
     static const int MAP_HEIGHT = 31;
@@ -42,12 +39,17 @@ private:
     textureManager* mapManager = new textureManager();
 
     SDL_Texture* mapTexture = nullptr;
+
+    TileID pacmanStandID;
+    TileID ghostStandID;
+    TileID pinkyStandID, inkyStandID, clydeStandID, blinkyStandID;
+
+    bool isDot[MAP_HEIGHT][MAP_WIDTH]{};
+    int dotLeft;
 public:
     explicit Map(SDL_Renderer *renderer);
 
     ~Map();
-
-    void initAnimation(SDL_Renderer *renderer);
 
     void loadMap();
 
@@ -57,7 +59,7 @@ public:
 
     void update();
 
-    static bool isWallAt(TileID tileID);
+    static bool isWallAt(Position position);
 
     static void removeDot(Pacman* pacman);
 
