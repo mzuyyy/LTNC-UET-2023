@@ -20,8 +20,6 @@ enum Direction{
 enum OBJECT_TYPE
 {
     OBJECT_PACMAN = 0,
-    OBJECT_PACMAN_ANDROID,
-    OBJECT_PACMAN_MS,
     OBJECT_BLINKY,
     OBJECT_PINKY,
     OBJECT_INKY,
@@ -87,6 +85,9 @@ protected:
     int frameCount{};
 
     int health{};
+
+    bool CanMove = true;
+    bool isDead = false;
 public:
     explicit Object(const std::string &textureSheet = OBJECT_TEXTURE_SHEET, SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_PACMAN, Timer* _timer = nullptr);
         ~Object();
@@ -95,7 +96,7 @@ public:
 
     virtual void render();
 
-    virtual void move(Position _velocity);
+    virtual void move(Direction direction, int _velocity);
 
     virtual TileID getTileID();
     void setTileID(TileID tileID);

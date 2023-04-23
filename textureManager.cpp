@@ -34,7 +34,7 @@ SDL_Texture *textureManager::setTextureAlphaMod(SDL_Texture *texture, Uint8 alph
     return texture;
 }
 
-SDL_Texture *textureManager::sdlTextureBlendMod(SDL_Texture *texture, SDL_BlendMode blendMode) {
+SDL_Texture *textureManager::setTextureBlendMod(SDL_Texture *texture, SDL_BlendMode blendMode) {
     SDL_SetTextureBlendMode(texture, blendMode);
     return texture;
 }

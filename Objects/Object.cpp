@@ -33,18 +33,32 @@ Position Object::getPosition() {
     return position;
 }
 
-void Object::move(Position _velocity) {
-    position.x += _velocity.x;
-    position.y += _velocity.y;
+void Object::move(Direction direction, int _velocity) {
+    switch (direction) {
+        case UP:
+            position.y -= _velocity;
+            break;
+        case DOWN:
+            position.y += _velocity;
+            break;
+        case LEFT:
+            position.x -= _velocity;
+            break;
+        case RIGHT:
+            position.x += _velocity;
+            break;
+    }
     destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
     if (checkPosition()){
-        tileID = {position.x / 21, position.y / 21};
+        tileID = {position.x / 24, position.y / 24};
     }
 }
 
 bool Object::checkPosition() const{
-    std::cerr << "x = " << position.x + 21 << ", y =  " << position.y  - 72 + 21 << std::endl;
-    return (position.x + 21 % 12 == 0 && position.y - 72 + 21 % 12 == 0);
+    int x = position.x + OBJECT_SIZE / 2;
+    int y = position.y - 144 + OBJECT_SIZE / 2;
+    std::cerr << "x = " << x << ", y =  " << y << std::endl;
+    return (x % 24 == 12) && (y % 24 == 12);
 }
 
 bool Object::checkCollision(Object *object) const {

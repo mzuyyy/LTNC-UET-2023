@@ -43,7 +43,7 @@ void Game::close() {
 void Game::runGame() {
     frameStart = SDL_GetTicks();
 
-    pacman = new Pacman(renderer, CLASSIC);
+    pacman = new Pacman(renderer);
 
     blinky = new Ghost(BLINKY,{0,0}, renderer);
     inky = new Ghost(INKY,{0,1}, renderer);
@@ -63,13 +63,16 @@ void Game::runGame() {
         inky->render();
         pinky->render();
         clyde->render();
-        map->update();
+        map->update(pacman);
         pacman->update();
 
         SDL_RenderPresent(renderer);
 
         pacman->checkMove(!Map::isWallAt(pacman->getNextPosition()));
 
+        if (!Map::isWallAt(pacman->getNextPosition(0))){
+            pacman->stop();
+        }
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
         {

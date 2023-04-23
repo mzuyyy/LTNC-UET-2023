@@ -12,11 +12,6 @@
 #include <string>
 #include <map>
 
-enum PACMAN_TYPE{
-    CLASSIC = 0,
-    ANDROID,
-    PACMAN_TYPE_TOTAL
-};
 enum PACMAN_STATE
 {
     PACMAN_START_STATE = 0,
@@ -42,7 +37,7 @@ enum PACMAN_POWER_STATE
 };
 class Pacman : public Object{
 public:
-    Pacman(SDL_Renderer *renderer, PACMAN_TYPE type);
+    Pacman(SDL_Renderer *renderer);
 
     ~Pacman();
 
@@ -50,7 +45,7 @@ public:
     void render() override;
     void setPacmanFrameClip();
     void queueDirection(Direction direction);
-    void move(Position velocity) override;
+    void move(Direction _direction, int _velocity) override;
     void stop();
     void setState(PACMAN_STATE state);
     void handleState();
@@ -66,29 +61,47 @@ public:
     }
     Position getPosition() override{
         Position temp = position;
-        temp.y -= 24 * 3;
+        temp.y -= 24 * 6;
         temp.x += 21;
         temp.y += 21;
         return temp;
     }
-    Position getNextPosition(){
+    Position getNextPosition(int flag = 1) {
         Position temp = getPosition();
+        if (flag)
         switch (directionQueue.empty() ? NONE : directionQueue.front()) {
             case UP:
-                temp.y -= 11;
+                temp.y -= 14;
                 break;
             case DOWN:
-                temp.y += 11;
+                temp.y += 12;
                 break;
             case LEFT:
-                temp.x -= 11;
+                temp.x -= 14;
                 break;
             case RIGHT:
-                temp.x += 11;
+                temp.x += 12;
                 break;
             default:
                 break;
         }
+        else
+            switch (directionQueue.empty() ? NONE : directionQueue.back()) {
+                case UP:
+                    temp.y -= 14;
+                    break;
+                case DOWN:
+                    temp.y += 12;
+                    break;
+                case LEFT:
+                    temp.x -= 14;
+                    break;
+                case RIGHT:
+                    temp.x += 12;
+                    break;
+                default:
+                    break;
+            }
         return temp;
     }
     TileID getTileID() override{
@@ -153,13 +166,10 @@ public:
                 break;
         }
     }
-    void setPacmanType (PACMAN_TYPE type){
-        pacmanType = type;
-    }
 private:
     const int PACMAN_EATING_STATE_TIME = 1000;
     const int UPGRADE_TIME[PACMAN_POWER_STATE_TOTAL] = {0, 8000, 4000, 3000, 4000, 4000, 5000,  5500, 3000};
-    const int PACMAN_VELOCITY = 4;
+    const int PACMAN_VELOCITY = 2;
     const int PACMAN_VELOCITY_SLOW = 1;
     const int PACMAN_MAX_HEALTH = 5;
     const int PACMAN_FRAME_VALUE = 5;
@@ -167,22 +177,16 @@ private:
     const int PACMAN_DEATH_ANIMATION_FRAME = 11;
     const int PACMAN_ANIMATION_SPEED = 100;
 
-    const std::string CLASSIC_PACMAN_TEXTURE_SHEET = "../Assets/pacmanTexture.png";
-    const std::string ANDROID_PACMAN_TEXTURE_SHEET = "../Assets/pacmanTexture.png";
+    const std::string PACMAN_TEXTURE_SHEET = "../Assets/pacmanTexture.png";
     const std::string DEAD_PACMAN_TEXTURE_SHEET = "../Assets/PacmanDead.png";
 
     bool power[PACMAN_POWER_STATE_TOTAL]{};
     Uint32 startPower[PACMAN_POWER_STATE_TOTAL]{};
     PACMAN_STATE pacmanState;
-    PACMAN_TYPE pacmanType;
 
     const PACMAN_STATE pacmanStartState = PACMAN_START_STATE;
 
     int pacmanHealth = PACMAN_MAX_HEALTH;
-
-    bool isDead = false;
-
-    bool CanMove = true;
 
     Uint32 pacmanVelocity{};
 

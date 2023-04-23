@@ -12,10 +12,10 @@ Map::Map(SDL_Renderer *renderer) {
     setMapFrameClip();
     for(int i = 0; i < MAP_HEIGHT; i++){
         for(int j = 0; j < MAP_WIDTH; j++){
-            destRect[i][j].x = j * mapWidthScreen;
-            destRect[i][j].y = 24 * 3 + i * mapHeightScreen;
-            destRect[i][j].w = mapWidthScreen;
-            destRect[i][j].h = mapHeightScreen;
+            destRect[i][j].x = j * MAP_SIZE;
+            destRect[i][j].y = MAP_SIZE * 6 + i * MAP_SIZE;
+            destRect[i][j].w = MAP_SIZE;
+            destRect[i][j].h = MAP_SIZE;
         }
     }
     consoleMap->updateStatus("Map is created");
@@ -51,30 +51,30 @@ void Map::renderMap(SDL_Renderer *renderer) {
 void Map::setMapFrameClip() {
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 4; j++){
-            mapFrameClip[i * 4 + j].x = i * (mapWidthFrame + 1);
-            mapFrameClip[i * 4 + j].y = j * (mapHeightFrame + 1);
-            mapFrameClip[i * 4 + j].w = mapWidthFrame;
-            mapFrameClip[i * 4 + j].h = mapHeightFrame;
+            mapFrameClip[i * 4 + j].x = i * (MAP_PIXEL + 1);
+            mapFrameClip[i * 4 + j].y = j * (MAP_PIXEL + 1);
+            mapFrameClip[i * 4 + j].w = MAP_PIXEL;
+            mapFrameClip[i * 4 + j].h = MAP_PIXEL;
         }
 }
 
-void Map::update() {
-
+void Map::update(Pacman *pacman) {
+    removeDot(pacman);
 }
 
 void Map::removeDot(Pacman *pacman) {
-    if (tile[pacman->getTileID().y][pacman->getTileID().x] == 26){
-        tile[pacman->getTileID().y][pacman->getTileID().x] = 30;
+    if (tile[pacman->getPosition().y / MAP_SIZE][pacman->getPosition().x / MAP_SIZE] == 26){
+        tile[pacman->getPosition().y / MAP_SIZE][pacman->getPosition().x / MAP_SIZE] = 30;
         pacman->eatDot();
     }
-    else if (tile[pacman->getTileID().y][pacman->getTileID().x] == 27){
-        tile[pacman->getTileID().y][pacman->getTileID().x] = 30;
+    else if (tile[pacman->getPosition().y / MAP_SIZE][pacman->getPosition().x / MAP_SIZE] == 27){
+        tile[pacman->getPosition().y / MAP_SIZE][pacman->getPosition().x / MAP_SIZE] = 30;
         pacman->eatDot();
     }
 
 }
 
-bool Map::isWallAt(Position position) {
+bool Map::isWallAt(Position position){
     std::cerr << "Tile[" << position.y / 24 << "][" << position.x / 24 << "] : " << tile[position.y / 24][position.x / 24] << std::endl;
     return  tile[position.y / 24][position.x / 24] != 30 && tile[position.y / 24][position.x / 24] != 26 && tile[position.y / 24][position.x / 24] != 27;
 }

@@ -20,7 +20,7 @@ public:
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer);
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer, SDL_RendererFlip flip);
     SDL_Texture* setTextureAlphaMod(SDL_Texture* texture, Uint8 alpha);
-    SDL_Texture* sdlTextureBlendMod(SDL_Texture* texture, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
+    SDL_Texture* setTextureBlendMod(SDL_Texture* texture, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
 
     void clean(SDL_Texture* texture);
 };

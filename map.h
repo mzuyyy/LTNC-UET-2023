@@ -12,6 +12,12 @@
 #include <SDL_render.h>
 #include <SDL.h>
 #include <SDL_image.h>
+const int MAP_PIXEL = 16;
+
+const int MAP_SIZE = 24;
+
+static const int MAP_WIDTH = 28;
+static const int MAP_HEIGHT = 31;
 
 class Map{
 private:
@@ -21,16 +27,7 @@ private:
 
     friend Object;
 
-    static const int MAP_WIDTH = 28;
-    static const int MAP_HEIGHT = 31;
-
     static int tile[MAP_HEIGHT][MAP_WIDTH];
-
-    const int mapWidthFrame = 16;
-    const int mapHeightFrame = 16;
-
-    const int mapWidthScreen = 24;
-    const int mapHeightScreen = 24;
 
     SDL_Rect mapFrameClip[32]{};
 
@@ -57,11 +54,11 @@ public:
 
     void  setMapFrameClip();
 
-    void update();
+    void update(Pacman *pacman);
 
     static bool isWallAt(Position position);
 
-    static void removeDot(Pacman* pacman);
+    void removeDot(Pacman* pacman);
 
     SDL_Rect destRect[31][28]{};
 };

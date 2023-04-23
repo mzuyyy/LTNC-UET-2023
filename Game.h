@@ -13,8 +13,8 @@
 
 class Game {
 private:
-    static const int WINDOW_WIDTH = 672;
-    static const int WINDOW_HEIGHT = 888;
+    static const int WINDOW_WIDTH = MAP_WIDTH * MAP_SIZE;
+    static const int WINDOW_HEIGHT = MAP_HEIGHT * MAP_SIZE + 24 * 12;
     const char* WINDOW_TITTLE = "Pac-man";
     static const int rendererFlags =  SDL_RENDERER_ACCELERATED;
 
