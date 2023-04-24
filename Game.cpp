@@ -43,36 +43,25 @@ void Game::close() {
 void Game::runGame() {
     frameStart = SDL_GetTicks();
 
-    pacman = new Pacman(renderer);
+    engine = new Engine();
+    stateManager = new StateManager(engine, renderer);
 
-    blinky = new Ghost(BLINKY,{0,0}, renderer);
-    inky = new Ghost(INKY,{0,1}, renderer);
-    pinky = new Ghost(PINKY,{0,2}, renderer);
-    clyde = new Ghost(CLYDE,{0,3}, renderer);
-
-    map = new Map(renderer);
+    engine->init();
+    engine->load();
+    engine->update();
 
     while (isRunning) {
         handleEvent();
+        handleState();
 
         SDL_RenderClear(renderer);
 
-        map->renderMap(renderer);
-        pacman->render();
-        blinky->render();
-        inky->render();
-        pinky->render();
-        clyde->render();
-        map->update(pacman);
-        pacman->update();
+        stateManager->render();
 
         SDL_RenderPresent(renderer);
 
-        pacman->checkMove(!Map::isWallAt(pacman->getNextPosition()));
+        stateManager->update();
 
-        if (!Map::isWallAt(pacman->getNextPosition(0))){
-            pacman->stop();
-        }
         frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
         {
@@ -89,39 +78,14 @@ SDL_Event Game::handleEvent() {
             isRunning = false;
             break;
         case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-                case SDLK_UP:
-                    pacman->queueDirection(UP);
-                    break;
-                case SDLK_DOWN:
-                    pacman->queueDirection(DOWN);
-                    break;
-                case SDLK_LEFT:
-                    pacman->queueDirection(LEFT);
-                    break;
-                case SDLK_RIGHT:
-                    pacman->queueDirection(RIGHT);
-                    break;
-                case SDLK_ESCAPE:
-                    isPlaying = false;
-                    break;
-            }
+           stateManager->keyDown(event.key.keysym.sym);
+           break;
+        case SDL_KEYUP:
+            stateManager->keyUp(event.key.keysym.sym);
     }
     return event;
 }
 
-void Game::load(const std::string &path) {
-
-}
-
-void Game::loadHighScore() {
-
-}
-
-void Game::save() {
-
-}
-
-void Game::saveHighScore() {
-
+void Game::handleState() {
+    stateManager->pullRequest();
 }

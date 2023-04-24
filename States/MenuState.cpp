@@ -2,14 +2,14 @@
 // Created by MZuy on 3/24/2023.
 //
 
-#include "Menu.h"
-Menu::Menu(SDL_Renderer *renderer) {
+#include "MenuState.h"
+MenuState::MenuState(SDL_Renderer *renderer) {
     menuFrameClip.resize(11);
     menuTexture = menuManager->loadTexture(menuPath, renderer);
     setMenuFrameClip();
 }
 
-void Menu::render(const int &type, SDL_Renderer *renderer) {
+void MenuState::render(const int &type, SDL_Renderer *renderer) {
     sourceRect = menuFrameClip[type];
     destRect.x = 0;
     destRect.y = 0;
@@ -18,10 +18,10 @@ void Menu::render(const int &type, SDL_Renderer *renderer) {
     SDL_RenderCopy(renderer, menuTexture, &sourceRect, &destRect);
 }
 
-void Menu::update() {
+void MenuState::update() {
 
 }
-void Menu::setMenuFrameClip() {
+void MenuState::setMenuFrameClip() {
     for (int i = 0; i < 11; i++){
         menuFrameClip[i].x = i * MENU_TILE_WIDTH;
         menuFrameClip[i].y = 0;

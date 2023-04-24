@@ -5,10 +5,25 @@
 #include "pacman.h"
 #include "Object.h"
 
-Pacman::Pacman(SDL_Renderer *renderer) {
+Pacman::Pacman(SDL_Renderer *renderer, PACMAN_TYPE type) {
     this->pacmanRenderer = renderer;
 
-    pacmanTexture = pacmanManager->loadTexture(PACMAN_TEXTURE_SHEET, pacmanRenderer);
+    pacmanType = type;
+
+    switch(pacmanType){
+        case CLASSIC:
+            objectType = OBJECT_PACMAN;
+            pacmanTexture = pacmanManager->loadTexture(PACMAN_TEXTURE_SHEET, pacmanRenderer);
+            break;
+        case ANDROID:
+            objectType = OBJECT_ANDROID_PACMAN;
+            pacmanTexture = pacmanManager->loadTexture(ANDROID_TEXTURE_SHEET, pacmanRenderer);
+            break;
+        case MS:
+            objectType = OBJECT_MS_PACMAN;
+            pacmanTexture = pacmanManager->loadTexture(MS_TEXTURE_SHEET, pacmanRenderer);
+            break;
+    }
 
     tileID.x = startTileID.x;
     tileID.y = startTileID.y;
@@ -78,69 +93,142 @@ void Pacman::render() {
         pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
     } else {
         if (frame >= 3) frame = (frame > 4) ? frame - 4 : 4 - frame;
-        switch (directionQueue.front()) {
-            case UP:
-                if (!lastPoint.empty())
-                    lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
-                for (int i = 0; i < lastPoint.size(); i++) {
-                    lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
-                    pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
-                    pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+        switch (pacmanType){
+            case CLASSIC:
+                switch (directionQueue.front()) {
+                    case UP:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
+                        break;
+                    case RIGHT:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    case DOWN:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    case LEFT:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    default:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[0], destRect, pacmanRenderer);
+                        break;
                 }
-                pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
-                pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
-                break;
-            case RIGHT:
-                if (!lastPoint.empty())
-                    lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
-                for (int i = 0; i < lastPoint.size(); i++) {
-                    lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
-                    pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
-                    pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], lastDest,
-                                               pacmanRenderer);
-                }
-                pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
-                pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], destRect,
-                                           pacmanRenderer);
-                break;
-            case DOWN:
-                if (!lastPoint.empty())
-                    lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
-                for (int i = 0; i < lastPoint.size(); i++) {
-                    lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
-                    pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
-                    pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], lastDest,
-                                               pacmanRenderer);
-                }
-                pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
-                pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], destRect,
-                                           pacmanRenderer);
-                break;
-            case LEFT:
-                if (!lastPoint.empty())
-                    lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
-                for (int i = 0; i < lastPoint.size(); i++) {
-                    lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
-                    pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
-                    pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], lastDest,
-                                               pacmanRenderer);
-                }
-                pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
-                pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], destRect,
-                                           pacmanRenderer);
                 break;
             default:
-                pacmanManager->drawTexture(pacmanTexture, frameClip[0], destRect, pacmanRenderer);
-                break;
+                switch (directionQueue.front()) {
+                    case UP:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
+                        break;
+                    case RIGHT:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 3], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 3], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    case DOWN:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 6], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 6], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    case LEFT:
+                        if (!lastPoint.empty())
+                            lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+                        for (int i = 0; i < lastPoint.size(); i++) {
+                            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+                            pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
+                            pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 9], lastDest,
+                                                       pacmanRenderer);
+                        }
+                        pacmanTexture = pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 9], destRect,
+                                                   pacmanRenderer);
+                        break;
+                    default:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[9], destRect, pacmanRenderer);
+                        break;
+                }
+
         }
     }
 }
 void Pacman::setPacmanFrameClip() {
-    for(int i = 0; i < 12; i++){
-        frameClip[i].x = i * (6 + OBJECT_PIXEL);
-        frameClip[i].y = 0;
-        frameClip[i].w = OBJECT_PIXEL;
-        frameClip[i].h = OBJECT_PIXEL;
+    switch(pacmanType){
+        case CLASSIC: case ANDROID:
+            for(int i = 0; i < 12; i++){
+                frameClip[i].x = i * (6 + OBJECT_PIXEL);
+                frameClip[i].y = 0;
+                frameClip[i].w = OBJECT_PIXEL;
+                frameClip[i].h = OBJECT_PIXEL;
+            }
+            break;
+        case MS:
+            for (int i = 0; i < 12; i++) {
+                frameClip[i].x = i * (3 + MS_PIXEL);
+                frameClip[i].y = 0;
+                frameClip[i].w = MS_PIXEL;
+                frameClip[i].h = MS_PIXEL;
+            }
+            break;
     }
 }
 

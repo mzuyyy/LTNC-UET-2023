@@ -18,8 +18,12 @@ Map::Map(SDL_Renderer *renderer) {
             destRect[i][j].h = MAP_SIZE;
         }
     }
+    mapRenderer = renderer;
+
+    mapTexture[0] = mapManager->loadTexture(MAP_PATH_PNG, renderer);
+    mapTexture[1] = mapManager->loadTexture(MAP_PATH_PNG_INVERSE, renderer);
+
     consoleMap->updateStatus("Map is created");
-    mapTexture = mapManager->loadTexture(MAP_PATH_PNG, renderer);
 }
 
 Map::~Map() {
@@ -39,15 +43,24 @@ void Map::loadMap(){
     }
 }
 
-void Map::renderMap(SDL_Renderer *renderer) {
+void Map::renderMap() {
     for(int i = 0; i < MAP_HEIGHT; i++){
         for(int j = 0; j < MAP_WIDTH; j++){
-            mapManager->drawTexture(mapTexture,
-                                    mapFrameClip[tile[i][j]], destRect[i][j], renderer);
+            mapManager->drawTexture(mapTexture[0],
+                                    mapFrameClip[tile[i][j]], destRect[i][j], mapRenderer);
         }
     }
 }
 
+void Map::animationMap() {
+    frame = (SDL_GetTicks() / MAP_ANIMATION_SPEED) % 2;
+    for(int i = 0; i < MAP_HEIGHT; i++){
+        for(int j = 0; j < MAP_WIDTH; j++){
+            mapManager->drawTexture(mapTexture[frame],
+                                    mapFrameClip[tile[i][j]], destRect[i][j], mapRenderer);
+        }
+    }
+}
 void Map::setMapFrameClip() {
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 4; j++){
@@ -58,7 +71,9 @@ void Map::setMapFrameClip() {
         }
 }
 
-void Map::update(Pacman *pacman) {
+void Map::update(Pacman *pacman, bool isNeedAnimation) {
+    if (isNeedAnimation)
+        Map::animationMap();
     removeDot(pacman);
 }
 
@@ -75,7 +90,6 @@ void Map::removeDot(Pacman *pacman) {
 }
 
 bool Map::isWallAt(Position position){
-    std::cerr << "Tile[" << position.y / 24 << "][" << position.x / 24 << "] : " << tile[position.y / 24][position.x / 24] << std::endl;
     return  tile[position.y / 24][position.x / 24] != 30 && tile[position.y / 24][position.x / 24] != 26 && tile[position.y / 24][position.x / 24] != 27;
 }
 

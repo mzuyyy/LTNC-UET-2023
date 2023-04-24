@@ -35,9 +35,15 @@ enum PACMAN_POWER_STATE
     FREEZE_PACMAN,
     PACMAN_POWER_STATE_TOTAL
 };
+enum PACMAN_TYPE{
+    CLASSIC,
+    ANDROID,
+    MS,
+    PACMAN_TYPE_TOTAL,
+};
 class Pacman : public Object{
 public:
-    Pacman(SDL_Renderer *renderer);
+    Pacman(SDL_Renderer *renderer, PACMAN_TYPE type);
 
     ~Pacman();
 
@@ -157,14 +163,9 @@ public:
     }
     void checkMove(bool check){
         CanMove = check;
-        switch (CanMove) {
-            case true:
-                std::cerr << "Can move ? Yes" << std::endl;
-                break;
-            case false:
-                std::cerr << "Can move ? No" << std::endl;
-                break;
-        }
+    }
+    bool isPacmanPower(PACMAN_POWER_STATE _power){
+        return power[_power];
     }
 private:
     const int PACMAN_EATING_STATE_TIME = 1000;
@@ -175,10 +176,13 @@ private:
     const int PACMAN_FRAME_VALUE = 5;
     const int PACMAN_SLOW_FRAME_VALUE = 10;
     const int PACMAN_DEATH_ANIMATION_FRAME = 11;
-    const int PACMAN_ANIMATION_SPEED = 100;
+    const int PACMAN_ANIMATION_SPEED = 75;
+    const int MS_PIXEL = 45;
 
-    const std::string PACMAN_TEXTURE_SHEET = "../Assets/pacmanTexture.png";
-    const std::string DEAD_PACMAN_TEXTURE_SHEET = "../Assets/PacmanDead.png";
+    const std::string PACMAN_TEXTURE_SHEET = "../Assets/Pacman/pacmanTexture.png";
+    const std::string ANDROID_TEXTURE_SHEET = "../Assets/Pacman/androidPacmanTexture.png";
+    const std::string MS_TEXTURE_SHEET = "../Assets/Pacman/msPacmanTexture.png";
+    const std::string DEAD_PACMAN_TEXTURE_SHEET = "../Assets/Pacman/PacmanDead.png";
 
     bool power[PACMAN_POWER_STATE_TOTAL]{};
     Uint32 startPower[PACMAN_POWER_STATE_TOTAL]{};
@@ -193,6 +197,8 @@ private:
     SDL_Renderer* pacmanRenderer = nullptr;
 
     SDL_Texture* pacmanTexture{};
+
+    PACMAN_TYPE pacmanType;
 
     textureManager* pacmanManager = new textureManager();
 

@@ -10,8 +10,8 @@ enum GHOST_TYPE{
     BLINKY,
     DEADLY,
     CLYDE,
-    INKY,
     FREEZY,
+    INKY,
     INVISY,
     PINKY,
     SPEEDY,
@@ -65,9 +65,26 @@ enum EATEN_GHOST_SPRITE
     EATEN_GHOST_LEFT,
     EATEN_GHOST_SPRITE_TOTAL
 };
+enum HIT_TYPE{
+    NONE_HIT = 0,
+    PACMAN_HIT,
+    GHOST_HIT,
+    HIT_TYPE_TOTAL,
+};
 const int GHOST_ANIMATION_FRAME = 2;
 const int GHOST_PIXEL = 42;
 const int ANIMATION_SPEED = 100;
+const TileID startGhostTileID[GHOST_TYPE_TOTAL] = {
+        {13, 11},
+        {13, 11},
+        {11, 14},
+        {11, 14},
+        {13, 14},
+        {13, 14},
+        {15, 14},
+        {15, 14},
+        {0, 14},
+};
 class Ghost : public Object{
 private:
     GHOST_TYPE ghostType;
@@ -96,12 +113,17 @@ private:
 
     TileID defaultTileID = {0, 0};
 public:
-    Ghost(GHOST_TYPE type, TileID tile, SDL_Renderer *renderer);
+    Ghost(GHOST_TYPE type, SDL_Renderer *renderer);
     ~Ghost();
 
     void update() override;
     void render() override;
     void queueDirection(Direction dir);
+    void move(Direction _direction, int _velocity);
+    void stop();
+    void setState(GHOST_STATE ghostState);
+    void handleState();
+
 
     Position getPosition(){
         return position;

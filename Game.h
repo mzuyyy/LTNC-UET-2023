@@ -8,6 +8,7 @@
 #include "Objects/Ghost.h"
 #include "logStatus.h"
 #include "Map.h"
+#include "States/StateManager.h"
 #include <set>
 
 
@@ -20,6 +21,9 @@ private:
 
     bool isRunning = false;
     bool isPlaying = false;
+
+    StateManager* stateManager = nullptr;
+    Engine* engine = nullptr;
 
     Log* consoleGame = nullptr;
     Pacman* pacman = nullptr;
@@ -47,14 +51,11 @@ public:
         window = nullptr;
     };
     void init();
-    void load(const std::string &path);
-    void loadHighScore();
-    void save();
-    void saveHighScore();
     void close();
     void runGame();
 
     SDL_Event handleEvent();
+    void handleState();
 
     SDL_Renderer* getRenderer() const {
         return renderer;

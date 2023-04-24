@@ -4,7 +4,7 @@
 
 #include "Ghost.h"
 
-Ghost::Ghost(GHOST_TYPE type, TileID tile, SDL_Renderer *renderer) {
+Ghost::Ghost(GHOST_TYPE type, SDL_Renderer *renderer) {
     consoleGhost = new Log("Ghost");
     objectRenderer = renderer;
     ghostType = type;
@@ -30,7 +30,9 @@ Ghost::Ghost(GHOST_TYPE type, TileID tile, SDL_Renderer *renderer) {
         default:
             break;
     }
-    destRect = {tile.x * OBJECT_SIZE, tile.y * OBJECT_SIZE, OBJECT_SIZE, OBJECT_SIZE};
+    tileID.x = startGhostTileID[ghostType].x;
+    tileID.y = startGhostTileID[ghostType].y;
+    destRect = {tileID.x * 24 + 3, tileID.y * 24 + 144 - 9, OBJECT_SIZE, OBJECT_SIZE};
 }
 void Ghost::setGhostFrameClip() {
     for (int i = 0; i < 11; i++){
@@ -55,7 +57,7 @@ void Ghost::render(){
             ghostManager->drawTexture(ghostTexture,ghostFrameClip[frame + 6], destRect, objectRenderer);
             break;
         default:
-            ghostManager->drawTexture(ghostTexture,ghostFrameClip[10], destRect, objectRenderer);
+            ghostManager->drawTexture(ghostTexture,ghostFrameClip[ghostType], destRect, objectRenderer);
             break;
     }
 }
@@ -65,5 +67,22 @@ void Ghost::update() {
 
 }
 void Ghost::queueDirection(Direction dir) {
+}
+
+void Ghost::move(Direction _direction, int _velocity) {
+    Object::move(_direction, _velocity);
+}
+
+void Ghost::stop() {
+    if(directionQueue.size() > 1)
+        if(checkPosition())
+            directionQueue.pop();
+}
+
+void Ghost::setState(GHOST_STATE ghostState) {
+
+}
+
+void Ghost::handleState() {
 
 }

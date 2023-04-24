@@ -11,7 +11,7 @@ enum STATE_TYPE
 {
     STATE_NULL = -1,
     MENU_STATE,
-    PLAYING_STATE,
+    PLAY_STATE,
     HOW_TO_PLAY_STATE,
     SETTING_STATE,
     HIGHSCORE_STATE,
@@ -43,9 +43,10 @@ public:
     virtual void init(Engine* engine) = 0;
     virtual void update() = 0;
     virtual void render() = 0;
+    virtual void close() = 0;
 
-    virtual void keyDown(int keyCode) = 0;
-    virtual void keyUp(int keyCode) = 0;
+    virtual void keyDown(SDL_Keycode keyCode) = 0;
+    virtual void keyUp(SDL_Keycode keyCode) = 0;
 
     void pull(STATE_TYPE type){
         stateType = type;

@@ -33,9 +33,11 @@ private:
 
     Log* consoleMap = new Log("Map");
 
+    SDL_Renderer* mapRenderer = nullptr;
+
     textureManager* mapManager = new textureManager();
 
-    SDL_Texture* mapTexture = nullptr;
+    SDL_Texture* mapTexture[2] = {nullptr, nullptr};
 
     TileID pacmanStandID;
     TileID ghostStandID;
@@ -43,6 +45,10 @@ private:
 
     bool isDot[MAP_HEIGHT][MAP_WIDTH]{};
     int dotLeft;
+
+    int frame{};
+    const int frameCount = 6;
+    const int MAP_ANIMATION_SPEED = 75;
 public:
     explicit Map(SDL_Renderer *renderer);
 
@@ -50,11 +56,13 @@ public:
 
     void loadMap();
 
-    void renderMap(SDL_Renderer *renderer);
+    void renderMap();
+
+    void animationMap();
 
     void  setMapFrameClip();
 
-    void update(Pacman *pacman);
+    void update(Pacman *pacman, bool isNeedAnimation);
 
     static bool isWallAt(Position position);
 

@@ -2,12 +2,12 @@
 // Created by MZuy on 3/24/2023.
 //
 
-#ifndef BTL_MENU_H
-#define BTL_MENU_H
+#ifndef BTL_MENUSTATE_H
+#define BTL_MENUSTATE_H
 
-#include "textureManager.h"
+#include "../textureManager.h"
 
-class Menu {
+class MenuState {
 private:
     const int MENU_TILE_WIDTH = 671;
     const int MENU_TILE_HEIGHT = 888;
@@ -21,12 +21,12 @@ private:
     std::string menuPath = "../Assets/menu.png";
     std::vector<SDL_Rect> menuFrameClip;
 public:
-    Menu(SDL_Renderer *renderer);
-    ~Menu();
+    MenuState(SDL_Renderer *renderer);
+    ~MenuState();
     void render(const int &type, SDL_Renderer *renderer);
     void update();
     void setMenuFrameClip();
 };
 
 
-#endif //BTL_MENU_H
+#endif //BTL_MENUSTATE_H

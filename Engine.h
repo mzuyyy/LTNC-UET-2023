@@ -30,6 +30,16 @@ public:
 
     void save(const std::string& path = GAME_CONFIG_PATH) const;
     void saveHighScore(const std::string &path, Uint32 score, int level);
+
+    Audio* getAudio(){
+        return audio;
+    }
+
+    ControlManager* getControlManager(){
+        if (controlManager == nullptr)
+            consoleEngine->updateStatus("Control are null");
+        return controlManager;
+    }
 private:
     Log* consoleEngine = nullptr;
     Timer* timer = nullptr;

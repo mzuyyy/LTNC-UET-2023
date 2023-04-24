@@ -57,7 +57,6 @@ void Object::move(Direction direction, int _velocity) {
 bool Object::checkPosition() const{
     int x = position.x + OBJECT_SIZE / 2;
     int y = position.y - 144 + OBJECT_SIZE / 2;
-    std::cerr << "x = " << x << ", y =  " << y << std::endl;
     return (x % 24 == 12) && (y % 24 == 12);
 }
 
