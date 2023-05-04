@@ -30,11 +30,10 @@ enum EFFECT_TYPE
     BOSS_DEATH,
     EFFECT_TYPE_TOTAL
 };
-const int TOTAL_PATH_AUDIO = 17;
-const std::string AUDIO_PATH[TOTAL_PATH_AUDIO] = {
+const int AUDIO_PATH_TOTAL = 17;
+const std::string AUDIO_PATH[AUDIO_PATH_TOTAL] = {
         "../Assets/Sound/game_start.wav",
         "../Assets/Sound/game_pause.wav",
-
         "../Assets/Sound/credit.wav",
         "../Assets/Sound/munch_1.wav",
         "../Assets/Sound/extend.wav",
@@ -59,7 +58,7 @@ public:
     Mix_Music* loadMusic(const std::string &path);
     Mix_Chunk* loadEffect(const std::string &path);
 
-    void init(const int frequency = 44100, const int channel = 2, const int chunkSize = 2048);
+    void init(int frequency = 44100, int channel = 2, int chunkSize = 2048);
     void free();
     void close();
 
@@ -79,11 +78,11 @@ public:
     static void stop(){
         Mix_HaltMusic();
     };
-    void pause(){
+    static void pause(){
         if(!isPause())
             Mix_PauseMusic();
     };
-    void resume(){
+    static void resume(){
         if(isPause())
             Mix_ResumeMusic();
     };
@@ -94,7 +93,7 @@ public:
     static bool isPauseChannel(int channel = -1){
         return Mix_Paused(channel);
     };
-    void stopChannel(int channel = -1){
+    static void stopChannel(int channel = -1){
         Mix_HaltChannel(channel);
     };
     static void pauseChannel(int channel = - 1){
@@ -106,17 +105,17 @@ public:
             Mix_Resume(channel);
     };
 
-    int getMusicVolume(){
+    int getMusicVolume() const{
         return musicVolume;
     }
-    int getChannelVolume(){
+    int getChannelVolume() const{
         return channelVolume;
     }
 private:
     int musicVolume{};
     int channelVolume{};
 
-    Log* consoleAudio = nullptr;
+    Log* consoleAudio;
 
     Mix_Music * gameStart{};
     Mix_Music * gamePause{};

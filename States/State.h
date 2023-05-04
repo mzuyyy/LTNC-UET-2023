@@ -12,13 +12,7 @@ enum STATE_TYPE
     STATE_NULL = -1,
     MENU_STATE,
     PLAY_STATE,
-    HOW_TO_PLAY_STATE,
-    SETTING_STATE,
-    HIGHSCORE_STATE,
-    ABOUT_STATE,
-    RESUME_STATE,
-    SAVE_SETTING_STATE,
-    EXIT_GAME_STATE,
+    PAUSED_STATE,
     GAME_OVER_STATE,
     WIN_GAME_STATE,
     CLOSE_STATE,
@@ -35,7 +29,7 @@ public:
     explicit State(Engine* engine){
         this->engine = engine;
     }
-    virtual ~State(){
+    ~State(){
         delete engine;
         engine = nullptr;
     };

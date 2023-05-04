@@ -34,23 +34,35 @@ public:
     Audio* getAudio(){
         return audio;
     }
-
     ControlManager* getControlManager(){
-        if (controlManager == nullptr)
-            consoleEngine->updateStatus("Control are null");
         return controlManager;
     }
+    Timer* getTimer(){
+        return timer;
+    }
+    void setMusicVolume(int volume){
+        musicVolume = volume;
+    }
+    void setChannelVolume(int volume){
+        channelVolume = volume;
+    }
+    void setPacmanType(int type){
+        pacmanType = type;
+    }
+    void setControlType(int type){
+        controlType = type;
+    }
 private:
-    Log* consoleEngine = nullptr;
-    Timer* timer = nullptr;
-    Audio* audio = nullptr;
-    ControlManager* controlManager = nullptr;
+    Log* consoleEngine;
+    Timer* timer;
+    Audio* audio;
+    ControlManager* controlManager;
     std::multiset<Uint32, std::greater<>> highScoreSet;
 
     int lastLevel{};
     Uint32 lastScore{}, highScore{};
     int musicVolume{}, channelVolume{};
-    int mainCharacter{};
+    int pacmanType{};
     int controlType{};
 };
 

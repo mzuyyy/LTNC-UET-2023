@@ -19,8 +19,8 @@ public:
     SDL_Texture * loadTexture(const std::string& path, SDL_Renderer* renderer);
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer);
     void drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer, SDL_RendererFlip flip);
-    SDL_Texture* setTextureAlphaMod(SDL_Texture* texture, Uint8 alpha);
-    SDL_Texture* setTextureBlendMod(SDL_Texture* texture, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
+    static void setTextureAlphaMod(SDL_Texture* texture, Uint8 alpha);
+    static SDL_Texture* setTextureBlendMod(SDL_Texture* texture, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
 
     void clean(SDL_Texture* texture);
 };

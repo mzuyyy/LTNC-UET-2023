@@ -8,23 +8,17 @@
 
 class Timer {
 private:
-    Log* consoleTimer = nullptr;
+    Log* consoleTimer;
+
     Uint32 startTicks;
     Uint32 pausedTicks;
+
     bool paused;
     bool started;
 public:
-    Timer(){
-        consoleTimer = new Log("Timer");
-        startTicks = 0;
-        pausedTicks = 0;
-        paused = false;
-        started = false;
-     };
-    ~Timer(){
-        delete consoleTimer;
-        consoleTimer = nullptr;
-    };
+    Timer();
+    ~Timer();
+    void init();
     void start();
     void stop();
     void pause();

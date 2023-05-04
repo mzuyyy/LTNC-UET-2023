@@ -17,6 +17,22 @@ enum Direction{
     LEFT = -2,
     RIGHT = 2,
 };
+
+struct Position{
+    int x;
+    int y;
+    Position(int x, int y) : x(x), y(y) {}
+    Position() : x(0), y(0) {}
+
+    bool operator==(const Position& other) const{
+        return x == other.x && y == other.y;
+    }
+};
+struct TileID : Position {
+    TileID(int x, int y) : Position(x, y) {}
+    TileID() : Position(0, 0) {}
+};
+
 enum OBJECT_TYPE
 {
     OBJECT_PACMAN = 0,
@@ -26,9 +42,6 @@ enum OBJECT_TYPE
     OBJECT_PINKY,
     OBJECT_INKY,
     OBJECT_CLYDE,
-    OBJECT_FRIGHTENED_GHOST,
-    OBJECT_EATEN_GHOST,
-    OBJECT_PACMAN_DEATH,
     OBJECT_DOT,
     OBJECT_DOT_STATUS,
     OBJECT_LEVEL,
@@ -41,34 +54,22 @@ enum OBJECT_TYPE
     OBJECT_SPEEDY,
     OBJECT_INVISY,
     OBJECT_FREEZY,
-    OBJECT_GOLDEN,
-    OBJECT_GOLDEN_EXHAUSTED_DEFAULT,
-    OBJECT_GOLDEN_EXHAUSTED_YELLOW,
-    OBJECT_GOLDEN_DEATH,
     OBJECT_TYPE_TOTAL
 };
 const int OBJECT_PIXEL = 42;
 const int OBJECT_SIZE = 42;
-const std::string OBJECT_TEXTURE_SHEET = "../Assets";
-struct Position{
-    int x;
-    int y;
-    Position(int x, int y) : x(x), y(y) {}
-    Position() : x(0), y(0) {}
-};
-struct TileID : Position {
-    TileID(int x, int y) : Position(x, y) {}
-    TileID() : Position(0, 0) {}
-};
+//const std::string OBJECT_TEXTURE_SHEET = "../Assets";
+
 class Object {
 protected:
     Timer* timer;
+
     TileID tileID{};
     Position position{};
 
     OBJECT_TYPE objectType;
     TileID startTileID{};
-    SDL_Texture* objectTexture;
+    SDL_Texture* objectTexture{};
 
     SDL_Rect sourceRect{}, destRect{};
     SDL_Renderer* objectRenderer = nullptr;
@@ -79,7 +80,7 @@ protected:
     int velocity{};
 
     std::queue<Direction> directionQueue;
-    std::deque<TileID> lastPoint;
+    std::deque<Position> lastPoint;
     int lastAlphaMod{};
     SDL_Rect lastDest{};
 
@@ -91,24 +92,26 @@ protected:
     bool CanMove = true;
     bool isDead = false;
 public:
-    explicit Object(const std::string &textureSheet = OBJECT_TEXTURE_SHEET, SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_PACMAN, Timer* _timer = nullptr);
-        ~Object();
+    Object(SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_TYPE_TOTAL, Timer *_timer = nullptr);
+    ~Object();
 
     virtual void update();
 
-    virtual void render();
+    virtual void render() = 0;
 
-    virtual void move(Direction direction, int _velocity);
+    void move(Direction direction, int _velocity);
 
     virtual TileID getTileID();
-    void setTileID(TileID tileID);
+    void setTileID(TileID _tileID);
 
     virtual Position getPosition();
-    void setPosition(Position position);
+    void setPosition(Position _position);
 
     bool checkPosition() const;
 
     bool checkCollision(Object* object) const;
+
+    virtual void speedAnimation();
     textureManager* objectManager = new textureManager();
 
 

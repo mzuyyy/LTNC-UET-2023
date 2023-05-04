@@ -26,11 +26,11 @@ public:
     bool pullRequest();
 
 private:
-    Log* stateManagerConsole = nullptr;
-    Engine* engine = nullptr;
+    Log* stateManagerConsole;
+    Engine* engine;
     std::stack<State*> states;
 
-    SDL_Renderer* stateManagerRenderer = nullptr;
+    SDL_Renderer* stateManagerRenderer;
 };
 
 

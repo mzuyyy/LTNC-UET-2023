@@ -19,15 +19,16 @@ Engine::~Engine() {
 }
 
 void Engine::init() {
-    timer->start();
+    timer->init();
     audio->init();
 }
 
 void Engine::load(const std::string &path) {
     std::ifstream config(path);
     if (config.is_open()) {
-        config >> musicVolume >> channelVolume >> mainCharacter >> controlType;
+        config >> musicVolume >> channelVolume >> pacmanType >> controlType;
         config.close();
+        std::cerr << musicVolume << " " << channelVolume << std::endl << pacmanType << std::endl << controlType;
         consoleEngine->updateStatus("Load game config successfully!");
     } else {
         consoleEngine->updateStatus("Load game config failed!");
@@ -64,7 +65,7 @@ void Engine::update() const {
 void Engine::save(const std::string &path) const {
     std::ofstream config(path);
     if (config.is_open()) {
-        config << musicVolume << " " << channelVolume << std::endl << mainCharacter << std::endl << controlType;
+        config << musicVolume << " " << channelVolume << std::endl << pacmanType << std::endl << controlType;
         config.close();
         consoleEngine->updateStatus("Save game config successfully!");
     } else {

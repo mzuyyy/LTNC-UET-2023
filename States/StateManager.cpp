@@ -4,11 +4,12 @@
 
 #include "StateManager.h"
 #include "PlayState.h"
+#include "MenuState.h"
 
 StateManager::StateManager(Engine* _engine, SDL_Renderer* renderer) {
     engine = _engine;
     stateManagerRenderer = renderer;
-    stackState(new PlayState(renderer));
+    stackState(new MenuState(renderer));
     stateManagerConsole = new Log("StateManager");
     stateManagerConsole->updateStatus("Created state manager");
 }
@@ -23,7 +24,6 @@ void StateManager::close(){
         states.pop();
 
         delete temp;
-        temp = nullptr;
     }
 }
 
@@ -37,7 +37,6 @@ void StateManager::render() {
 }
 void StateManager::keyDown(int code) {
     if(!states.empty()){
-        stateManagerConsole->updateStatus("Getting key down...");
         states.top()->keyDown(code);
     }
 }
@@ -47,48 +46,55 @@ void StateManager::keyUp(int code) {
         states.top()->keyUp(code);
 }
 bool StateManager::pullRequest() {
+    bool isRunning = true;
     if(!states.empty()){
         STATE_TYPE type = states.top()->request();
         states.top()->pulled();
         switch(type){
             case MENU_STATE:
                 close();
+                stackState(new MenuState(stateManagerRenderer));
                 break;
             case PLAY_STATE:
                 stateManagerConsole->updateStatus("play state");
-                stackState(new PlayState(stateManagerRenderer));
+                stackState(new PlayState(stateManagerRenderer, engine));
                 break;
-            case STATE_NULL:
+            case PAUSED_STATE:{
+                auto* newMenuState = new MenuState(stateManagerRenderer);
+                newMenuState->setMenuState(PAUSE);
+                stackState(newMenuState);
+                delete newMenuState;
                 break;
-            case HOW_TO_PLAY_STATE:
+            }
+            case GAME_OVER_STATE: {
+                auto *newMenuState = new MenuState(stateManagerRenderer);
+                newMenuState->setMenuState(GAME_OVER);
+                stackState(newMenuState);
+                delete newMenuState;
                 break;
-            case SETTING_STATE:
+            }
+            case WIN_GAME_STATE: {
+                auto *newMenuState = new MenuState(stateManagerRenderer);
+                newMenuState->setMenuState(YOU_WIN);
+                stackState(newMenuState);
+                delete newMenuState;
                 break;
-            case HIGHSCORE_STATE:
-                break;
-            case ABOUT_STATE:
-                break;
-            case RESUME_STATE:
-                break;
-            case SAVE_SETTING_STATE:
-                break;
-            case EXIT_GAME_STATE:
-                break;
-            case GAME_OVER_STATE:
-                break;
-            case WIN_GAME_STATE:
-                break;
+            }
             case CLOSE_STATE:
+                close();
                 break;
             case RETURN_STATE:
+
                 break;
             case EXIT_STATE:
+                isRunning = false;
                 break;
         }
     }
+    return isRunning;
 }
 StateManager::~StateManager() {
-    stateManagerConsole->updateStatus("Detroying state manager");
+    stateManagerConsole->updateStatus("Destroying state manager");
     delete stateManagerConsole;
     stateManagerConsole = nullptr;
     delete engine;

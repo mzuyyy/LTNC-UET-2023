@@ -37,21 +37,22 @@ enum PACMAN_POWER_STATE
 };
 enum PACMAN_TYPE{
     CLASSIC,
-    ANDROID,
     MS,
+    ANDROID,
     PACMAN_TYPE_TOTAL,
 };
 class Pacman : public Object{
 public:
-    Pacman(SDL_Renderer *renderer, PACMAN_TYPE type);
+    Pacman(SDL_Renderer *renderer, PACMAN_TYPE type, Timer *_timer);
 
     ~Pacman();
 
     void update() override;
     void render() override;
+    void speedAnimation() override;
     void setPacmanFrameClip();
     void queueDirection(Direction direction);
-    void move(Direction _direction, int _velocity) override;
+    void move(Direction _direction, int _velocity);
     void stop();
     void setState(PACMAN_STATE state);
     void handleState();
@@ -157,6 +158,9 @@ public:
     void gainHealth(){
         pacmanHealth++;
         eatenFruit -= 4;
+    }
+    void loseHealth(){
+        pacmanHealth--;
     }
     int getHealth() const{
         return pacmanHealth;

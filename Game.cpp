@@ -36,8 +36,6 @@ void Game::close() {
     SDL_DestroyRenderer(renderer);
     renderer = nullptr;
     delete consoleGame;
-    delete pacman;
-    delete map;
     SDL_Quit();
 }
 void Game::runGame() {
@@ -48,21 +46,25 @@ void Game::runGame() {
 
     engine->init();
     engine->load();
-    engine->update();
+
 
     while (isRunning) {
         handleEvent();
+
         handleState();
 
+        engine->update();
+
         SDL_RenderClear(renderer);
+
+        stateManager->update();
 
         stateManager->render();
 
         SDL_RenderPresent(renderer);
 
-        stateManager->update();
+        frameTime = engine->getTimer()->getTicks() - frameStart;
 
-        frameTime = SDL_GetTicks() - frameStart;
         if (frameDelay > frameTime)
         {
             SDL_Delay(frameDelay - frameTime);
@@ -87,5 +89,5 @@ SDL_Event Game::handleEvent() {
 }
 
 void Game::handleState() {
-    stateManager->pullRequest();
+    isRunning = stateManager->pullRequest();
 }

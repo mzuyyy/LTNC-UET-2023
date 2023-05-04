@@ -35,7 +35,7 @@ public:
     };
     void setControlType(int type);
 private:
-    Log* consoleControlManager = nullptr;
+    Log* consoleControlManager;
 
     int keyCode[CONTROL_DIRECTION_TOTAL];
 };

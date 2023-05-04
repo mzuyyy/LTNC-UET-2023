@@ -10,6 +10,14 @@
 #include "../map.h"
 #include "../logStatus.h"
 
+struct Distance {
+    static double Euclidean(const Position& a, const Position& b){
+        return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
+    }
+    static int Manhattan(const Position& a, const Position& b){
+        return abs(a.x - b.x) + abs(a.y - b.y);
+    }
+};
 enum PLAY_STATE_TYPE{
     NEW_GAME = 0,
     NEW_LIFE,
@@ -23,7 +31,7 @@ enum PLAY_STATE_TYPE{
 };
 class PlayState : public State{
 public:
-    PlayState(SDL_Renderer *renderer);
+    PlayState(SDL_Renderer *renderer, Engine *_engine);
     ~PlayState();
 
     void init(Engine* _engine) override;
@@ -33,23 +41,33 @@ public:
     void setState(PLAY_STATE_TYPE state);
     void handleState();
 
+    void handleGhostTarget(Ghost *ghost);
+    void handleChaseTarget(Ghost *ghost);
+    static Direction calculateDirection(Ghost *ghost);
+    static void handleGhostMove(Ghost *ghost);
+    static HIT_TYPE handleGhostHit(Ghost* ghost, Pacman* pacman);
+
+
     void setControl();
 
-    void keyDown(const int code);
-    void keyUp(const int code);
+    void keyDown(const int code) override;
+    void keyUp(const int code) override;
 private:
-    Log* consolePlayState = nullptr;
+    Log* consolePlayState;
     int currentState{};
 
     int controlKey[CONTROL_DIRECTION_TOTAL]{};
 
     int dotCurrent = 0;
-    Pacman* pacman = nullptr;
-    Ghost* blinky = nullptr;
-    Ghost* clyde = nullptr;
-    Ghost* inky = nullptr;
-    Ghost* pinky = nullptr;
-    Map* map = nullptr;
+    Pacman* pacman;
+
+    Ghost* blinky;
+    Ghost* clyde;
+    Ghost* inky;
+    Ghost* pinky;
+    Ghost* mystery;
+
+    Map* map;
 };
 
 

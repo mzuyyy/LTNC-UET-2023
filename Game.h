@@ -20,21 +20,14 @@ private:
     static const int rendererFlags =  SDL_RENDERER_ACCELERATED;
 
     bool isRunning = false;
-    bool isPlaying = false;
 
-    StateManager* stateManager = nullptr;
-    Engine* engine = nullptr;
+    StateManager* stateManager;
+    Engine* engine;
 
-    Log* consoleGame = nullptr;
-    Pacman* pacman = nullptr;
-    Ghost* blinky = nullptr;
-    Ghost* pinky = nullptr;
-    Ghost* inky = nullptr;
-    Ghost* clyde = nullptr;
-    Map* map = nullptr;
+    Log* consoleGame;
 
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 
     const int FPS = 240;
     int frameDelay = 1000/FPS;

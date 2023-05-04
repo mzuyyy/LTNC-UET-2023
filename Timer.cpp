@@ -4,19 +4,43 @@
 #include <SDL.h>
 #include "Timer.h"
 
+Timer::Timer() {
+    consoleTimer = new Log("Timer");
+
+    startTicks = 0;
+    pausedTicks = 0;
+
+    paused = false;
+    started = false;
+}
+void Timer::init(){
+    startTicks = 0;
+    pausedTicks = 0;
+
+    paused = false;
+    started = false;
+
+    start();
+
+    consoleTimer->updateStatus("Timer init!");
+}
 void Timer::start() {
     started = true;
     paused = false;
+
     startTicks = SDL_GetTicks();
     pausedTicks = 0;
+
     consoleTimer->updateStatus("Timer started!");
 }
 
 void Timer::stop() {
     started = false;
     paused = false;
+
     startTicks = 0;
     pausedTicks = 0;
+
     consoleTimer->updateStatus("Timer stopped!");
 }
 
@@ -57,3 +81,7 @@ bool Timer::isPaused() const {
     return paused && started;
 }
 
+Timer::~Timer(){
+    delete consoleTimer;
+    consoleTimer = nullptr;
+}

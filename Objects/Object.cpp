@@ -4,25 +4,18 @@
 
 #include "Object.h"
 
-Object::Object(const std::string &textureSheet, SDL_Renderer *renderer, OBJECT_TYPE type, Timer *_timer) {
+Object::Object(SDL_Renderer *renderer, OBJECT_TYPE type, Timer *_timer) {
     this->objectRenderer = renderer;
     timer = _timer;
     this->objectType = type;
-    objectTexture = objectManager->loadTexture(textureSheet, objectRenderer);
     tileID.x = startTileID.x;
     tileID.y = startTileID.y;
     position.x = tileID.x * objectWidth;
     position.y = tileID.y * objectHeight;
 }
 void Object::update() {
-    position = {tileID.x * 24, tileID.y * 24};
-    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
-}
-void Object::render() {
-    SDL_RenderCopy(objectRenderer, objectTexture, &sourceRect, &destRect);
-}
-Object::~Object() {
-    SDL_DestroyTexture(objectTexture);
+    position = {tileID.x * 24 + 3, 144 + tileID.y * 24 - 9};
+    destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 }
 
 TileID Object::getTileID() {
@@ -48,7 +41,7 @@ void Object::move(Direction direction, int _velocity) {
             position.x += _velocity;
             break;
     }
-    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
+    destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
     if (checkPosition()){
         tileID = {position.x / 24, position.y / 24};
     }
@@ -67,13 +60,26 @@ bool Object::checkCollision(Object *object) const {
            (position.y + OBJECT_SIZE - 31 <= object->getPosition().y);
 }
 
-void Object::setTileID(TileID tileID) {
-    this->tileID = tileID;
-    update();
+void Object::setTileID(TileID _tileID) {
+    this->tileID = _tileID;
 }
 
-void Object::setPosition(Position position) {
-    this->position = position;
-    destRect = {position.x - 12, position.y - 12, OBJECT_SIZE, OBJECT_SIZE};
-    tileID = {position.x / 24, position.y / 24};
+void Object::setPosition(Position _position) {
+    this->position = _position;
+    destRect = {_position.x - 3, _position.y + 9, OBJECT_SIZE, OBJECT_SIZE};
+    tileID = {_position.x / 24, _position.y / 24};
+}
+Object::~Object() {
+    SDL_DestroyTexture(objectTexture);
+}
+
+void Object::speedAnimation() {
+    if (!lastPoint.empty())
+        lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
+    for (int i = 0; i < lastPoint.size(); i++) {
+        lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
+        textureManager::setTextureAlphaMod(objectTexture, lastAlphaMod / (i + 1));
+        objectManager->drawTexture(objectTexture, sourceRect, lastDest, objectRenderer);
+    }
+    textureManager::setTextureAlphaMod(objectTexture, lastAlphaMod);
 }

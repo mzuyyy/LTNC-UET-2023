@@ -33,11 +33,11 @@ private:
 
     Log* consoleMap = new Log("Map");
 
-    SDL_Renderer* mapRenderer = nullptr;
+    SDL_Renderer* mapRenderer;
 
     textureManager* mapManager = new textureManager();
 
-    SDL_Texture* mapTexture[2] = {nullptr, nullptr};
+    SDL_Texture* mapTexture[2];
 
     TileID pacmanStandID;
     TileID ghostStandID;
@@ -66,6 +66,7 @@ public:
 
     static bool isWallAt(Position position);
 
+    static bool canChangeDirectionAt(Position position);
     void removeDot(Pacman* pacman);
 
     SDL_Rect destRect[31][28]{};
