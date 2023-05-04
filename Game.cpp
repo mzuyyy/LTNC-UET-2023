@@ -47,7 +47,6 @@ void Game::runGame() {
     engine->init();
     engine->load();
 
-
     while (isRunning) {
         handleEvent();
 

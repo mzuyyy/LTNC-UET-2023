@@ -119,7 +119,6 @@ private:
 
     int currentMenuButton;
     int currentSettingButton;
-    int currentMiniMenuButton;
 
     STATE_OF_MENU currentState;
 
@@ -134,7 +133,6 @@ private:
     int isChoosingSetting[SETTING_BUTTON_TOTAL];
 
     int musicVolume, channelVolume;
-    int lastMusicVolume, lastChannelVolume;
     int pacmanType;
     int controlType;
 public:
@@ -149,7 +147,6 @@ public:
     void setControl();
     void handleState();
     void handlePreState();
-    void handleSetting();
     void keyDown(int key) override;
     void keyUp(int key) override;
     void updateButton(int change);

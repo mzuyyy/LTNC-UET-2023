@@ -51,15 +51,6 @@ void MenuState::init(Engine *_engine) {
 
     currentSettingButton = CHANGE_SOUND_VOLUME;
 
-    pacmanType = 0;
-    controlType = 0;
-
-    lastChannelVolume = engine->getAudio()->getChannelVolume();
-    lastMusicVolume = engine->getAudio()->getMusicVolume();
-
-    musicVolume = engine->getAudio()->getMusicVolume();
-    channelVolume = engine->getAudio()->getChannelVolume();
-
     setMenuFrameClip();
     setControl();
 
@@ -210,8 +201,8 @@ void MenuState::updateSetting(int change) {
             pacmanType += change;
             if (pacmanType > 2) pacmanType = 0;
             else if (pacmanType < 0) pacmanType = 2;
-            break;
             engine->setPacmanType(pacmanType);
+            break;
         default:
             break;
     }
@@ -229,6 +220,13 @@ void MenuState::handleState() {
             case MENU_SETTING:
                 currentState = SETTING;
                 currentSettingButton = CHANGE_MUSIC_VOLUME;
+                isChoosingSetting[currentSettingButton] = 1;
+
+                pacmanType = engine->getPacmanType();
+                controlType = engine->getControlType();
+
+                musicVolume = engine->getMusicVolume();
+                channelVolume = engine->getChannelVolume();
                 break;
             case MENU_HIGHSCORE:
                 currentState = HIGHSCORE;
@@ -241,32 +239,20 @@ void MenuState::handleState() {
                 break;
         }
     }
-    else if (currentState == SETTING)
-        switch (currentSettingButton) {
-            case CHANGE_MUSIC_VOLUME:
-                break;
-            case CHANGE_SOUND_VOLUME:
-                break;
-            case CHOOSE_CONTROL:
-                break;
-            case CHOOSE_PACMAN:
-                break;
-        }
     else if (currentState == SAVE_SETTING) {
         switch (currentMenuButton){
             case MENU_YES:
                 engine->getAudio()->play(CREDIT);
-                currentState = MAIN;
-                currentMenuButton = MENU_START;
                 engine->save();
                 break;
             case MENU_NO:
                 engine->getAudio()->play(CREDIT);
-                currentState = MAIN;
-                currentMenuButton = MENU_START;
                 engine->load();
                 break;
         }
+        currentState = MAIN;
+        currentMenuButton = MENU_START;
+        isChoosing[MENU_START] = 1;
     }
 }
 void MenuState::handlePreState() {
@@ -278,9 +264,6 @@ void MenuState::handlePreState() {
     else if (currentState == SAVE_SETTING)
         currentState = SETTING;
     else currentState = MAIN;
-}
-void MenuState::handleSetting() {
-
 }
 void MenuState::setMenuState(STATE_OF_MENU newState) {
     currentState = newState;

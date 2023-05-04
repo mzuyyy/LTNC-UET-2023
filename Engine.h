@@ -10,7 +10,7 @@
 #include "ControlManager.h"
 #include <set>
 
-const std::string GAME_CONFIG_PATH = "../config/game.config";
+const std::string GAME_CONFIG_PATH = "../config/game.txt";
 const std::string HIGH_SCORE_PATH = "../config/highscore.dat";
 
 const int VOLUME_TOTAL = 11;
@@ -51,6 +51,18 @@ public:
     }
     void setControlType(int type){
         controlType = type;
+    }
+    int getMusicVolume(){
+        return musicVolume;
+    }
+    int getChannelVolume(){
+        return channelVolume;
+    }
+    int getPacmanType(){
+        return pacmanType;
+    }
+    int getControlType(){
+        return controlType;
     }
 private:
     Log* consoleEngine;

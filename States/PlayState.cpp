@@ -9,7 +9,7 @@ PlayState::PlayState(SDL_Renderer *renderer, Engine *_engine) {
 
     engine = _engine;
 
-    pacman = new Pacman(renderer, CLASSIC, engine->getTimer());
+    pacman = new Pacman(renderer, static_cast<PACMAN_TYPE>(engine->getPacmanType()), engine->getTimer());
 
     blinky = new Ghost(BLINKY, renderer, engine->getTimer());
     inky = new Ghost(INKY, renderer, engine->getTimer());
