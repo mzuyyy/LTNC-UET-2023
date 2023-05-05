@@ -12,10 +12,17 @@ PlayState::PlayState(SDL_Renderer *renderer, Engine *_engine) {
     pacman = new Pacman(renderer, static_cast<PACMAN_TYPE>(engine->getPacmanType()), engine->getTimer());
 
     blinky = new Ghost(BLINKY, renderer, engine->getTimer());
+    deadly = new UpgradedGhost(DEADLY, renderer, engine->getTimer());
+
     inky = new Ghost(INKY, renderer, engine->getTimer());
+    freezy = new UpgradedGhost(FREEZY, renderer, engine->getTimer());
+
     pinky = new Ghost(PINKY, renderer, engine->getTimer());
+    speedy = new UpgradedGhost(SPEEDY, renderer, engine->getTimer());
+
     clyde = new Ghost(CLYDE, renderer, engine->getTimer());
-    mystery = new Ghost(MYSTERY, renderer, engine->getTimer());
+    invisy = new UpgradedGhost(INVISY, renderer, engine->getTimer());
+
     map = new Map(renderer);
 }
 void PlayState::init(Engine *_engine) {
@@ -43,8 +50,10 @@ void PlayState::update() {
         pacman->stop();
     }
 
-    //blinky->update();
-
+    blinky->update();
+    std::cerr << "Blinky x = " << blinky->getPosition().x << "; y = " << blinky->getPosition().y << std::endl;
+    std::cerr << "Blinky's state : " << blinky->getCurrentState() << std::endl;
+    std::cerr << "Blinky's target: " << blinky->getTarget().x << " " << blinky->getTarget().y << std::endl;
     inky->update();
 
     pinky->update();
@@ -110,7 +119,7 @@ void PlayState::setState(PLAY_STATE_TYPE state) {
 
             pacman->setState(PACMAN_START_STATE);
 
-            //blinky->setState(GHOST_INIT);
+            blinky->setState(GHOST_INIT);
             clyde->setState(GHOST_INIT);
             inky->setState(GHOST_INIT);
             pinky->setState(GHOST_INIT);
@@ -119,7 +128,7 @@ void PlayState::setState(PLAY_STATE_TYPE state) {
 
             break;
         case NEW_LIFE:
-            engine->getAudio()->play(GAME_START);
+            //engine->getAudio()->play(GAME_START);
 
             blinky->setState(GHOST_INIT);
             clyde->setState(GHOST_INIT);
@@ -171,6 +180,12 @@ void PlayState::handleState() {
             }
             break;
         case UPGRADE_GHOST:
+            if (!engine->getAudio()->isPlaying()){
+                if (!blinky->isUpgradeState())
+                    blinky->setState(GHOST_SCATTER);
+                else deadly->setState(UPGRADED_GHOST_SCATTER);
+                setState(PLAYING);
+            }
             break;
         case PLAYING:
             handleGhostTarget(blinky);
@@ -213,7 +228,7 @@ void PlayState::handleGhostTarget(Ghost *ghost) {
             std::random_device rd;
             std::mt19937 gen(rd());
             std::uniform_int_distribution<> dis(-2, 2);
-            Direction random = static_cast<Direction>(dis(gen));
+            auto random = static_cast<Direction>(dis(gen));
             while (random == 0) random = static_cast<Direction>(dis(gen));
 
             Position newTarget = ghost->getPosition();
@@ -230,11 +245,13 @@ void PlayState::handleGhostTarget(Ghost *ghost) {
                 case RIGHT:
                     newTarget.x += 12;
                     break;
+                default:
+                    break;
             }
             ghost->setTarget(newTarget);
             break;
         }
-        case GHOST_EAT: case GHOST_EATEN: case GHOST_UNSET:
+        case GHOST_WAS_EATEN: case GHOST_IS_EATEN: case GHOST_UNSET:
             ghost->setTarget(ghost->getStartPosition());
         default:
             break;
@@ -261,6 +278,8 @@ void PlayState::handleChaseTarget(Ghost *ghost) {
                 case RIGHT:
                     newTarget.x += 4 * 24;
                     break;
+                default:
+                    break;
             }
             ghost->setTarget(newTarget);
             break;
@@ -279,6 +298,8 @@ void PlayState::handleChaseTarget(Ghost *ghost) {
                     break;
                 case RIGHT:
                     newTarget.x += 2 * 24;
+                    break;
+                default:
                     break;
             }
             newTarget.x += (newTarget.x * 2 - blinky->getPosition().x);
@@ -304,11 +325,11 @@ Direction PlayState::calculateDirection(Ghost *ghost) {
     int distance, minDistance = static_cast<int>(1e12);
     Direction newDirection = NONE;
 
-    for (Direction direction = UP; direction <= RIGHT; direction = static_cast<Direction>(direction + 1)) {
+    for (int direction = UP; direction <= RIGHT; direction++) {
         if (ghost->getDirection() == -direction)
             continue;
         distance = static_cast<int>(1e12);
-        if (!Map::isWallAt(ghost->getNextPosition(direction))){
+        if (!Map::isWallAt(ghost->getNextPosition(static_cast<Direction>(direction)))){
             newPosition = ghost->getPosition();
             switch (direction) {
                 case UP:
@@ -323,12 +344,14 @@ Direction PlayState::calculateDirection(Ghost *ghost) {
                 case RIGHT:
                     newPosition.x += 12;
                     break;
+                default:
+                    break;
             }
             distance = Distance::Manhattan(newPosition, ghost->getTarget());
         }
         if (minDistance > distance){
             minDistance = distance;
-            newDirection = direction;
+            newDirection = static_cast<Direction>(direction);
         }
     }
     return newDirection;
@@ -337,7 +360,13 @@ Direction PlayState::calculateDirection(Ghost *ghost) {
 void PlayState::handleGhostMove(Ghost *ghost) {
     if (ghost->getCurrentState() == GHOST_STAND)
         return;
-    ghost->setDirection(calculateDirection(ghost));
+    //if (map->canChangeDirectionAt(ghost->getPosition()) || ghost->getDirection() != NONE) {
+      //  if (!ghost->isGhostStop()) {
+            ghost->setDirection(calculateDirection(ghost));
+            //ghost->setStop(false);
+        //}
+    //}
+    //else ghost->setStop(true);
 }
 
 HIT_TYPE PlayState::handleGhostHit(Ghost *ghost, Pacman *pacman) {
@@ -346,13 +375,13 @@ HIT_TYPE PlayState::handleGhostHit(Ghost *ghost, Pacman *pacman) {
     if (ghost->checkCollision(pacman)) {
         if (ghost->isGhostMode(GHOST_FRIGHTEN_MODE)) {
             pacman->setState(PACMAN_EATING_STATE);
-            ghost->setState(GHOST_EATEN);
+            ghost->setState(GHOST_IS_EATEN);
             return GHOST_HIT;
         }
-        if (!pacman->isPacmanPower(INVISIBLE_PACMAN) && ghost->getCurrentState() != GHOST_EAT
-        && ghost->getCurrentState() != GHOST_EATEN && ghost->getCurrentState() != GHOST_UNSET) {
-            if (ghost->getType() == DEADLY)
-                pacman->loseHealth();
+        if (!pacman->isPacmanPower(INVISIBLE_PACMAN) && ghost->getCurrentState() != GHOST_IS_EATEN
+            && ghost->getCurrentState() != GHOST_IS_EATEN && ghost->getCurrentState() != GHOST_UNSET) {
+            //if (ghost->getType() == DEADLY)
+              //  pacman->loseHealth();
             return PACMAN_HIT;
         }
     }

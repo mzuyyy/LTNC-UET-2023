@@ -6,14 +6,15 @@
 #define BTL_MYSTERY_H
 
 #include "Object.h"
-#include "Ghost.h"
+#include "UpgradedGhost.h"
 
-class Mystery : public Ghost{
+class Mystery : public UpgradedGhost{
 private:
-    GHOST_TYPE ghostType = MYSTERY;
-    SDL_Texture* mysteryTexture;
+    //GHOST_TYPE ghostType = MYSTERY;
+    //SDL_Texture* mysteryTexture;
 public:
-    
+
+    //Mystery() {};
 };
 
 

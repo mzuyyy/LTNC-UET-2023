@@ -61,7 +61,7 @@ bool StateManager::pullRequest() {
                 break;
             case PAUSED_STATE:{
                 auto* newMenuState = new MenuState(stateManagerRenderer);
-                newMenuState->setMenuState(PAUSE);
+                //newMenuState->setMenuState(PAUSE);
                 stackState(newMenuState);
                 delete newMenuState;
                 break;

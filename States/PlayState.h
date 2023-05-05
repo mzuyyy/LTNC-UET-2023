@@ -7,6 +7,7 @@
 #include "State.h"
 #include "../Objects/pacman.h"
 #include "../Objects/ghost.h"
+#include "../Objects/UpgradedGhost.h"
 #include "../map.h"
 #include "../logStatus.h"
 
@@ -43,9 +44,9 @@ public:
 
     void handleGhostTarget(Ghost *ghost);
     void handleChaseTarget(Ghost *ghost);
-    static Direction calculateDirection(Ghost *ghost);
-    static void handleGhostMove(Ghost *ghost);
-    static HIT_TYPE handleGhostHit(Ghost* ghost, Pacman* pacman);
+    Direction calculateDirection(Ghost *ghost);
+    void handleGhostMove(Ghost *ghost);
+    HIT_TYPE handleGhostHit(Ghost* ghost, Pacman* pacman);
 
 
     void setControl();
@@ -65,7 +66,12 @@ private:
     Ghost* clyde;
     Ghost* inky;
     Ghost* pinky;
-    Ghost* mystery;
+    Ghost* mystery{};
+
+    UpgradedGhost* deadly;
+    UpgradedGhost* invisy;
+    UpgradedGhost* freezy;
+    UpgradedGhost* speedy;
 
     Map* map;
 };

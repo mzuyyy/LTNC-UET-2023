@@ -67,6 +67,7 @@ public:
     static bool isWallAt(Position position);
 
     static bool canChangeDirectionAt(Position position);
+
     void removeDot(Pacman* pacman);
 
     SDL_Rect destRect[31][28]{};

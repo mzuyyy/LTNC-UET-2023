@@ -216,6 +216,7 @@ void MenuState::handleState() {
                 break;
             case MENU_HOW_TO_PLAY:
                 currentState = HOW_TO_PLAY;
+                engine->loadHighScore();
                 break;
             case MENU_SETTING:
                 currentState = SETTING;

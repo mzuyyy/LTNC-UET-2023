@@ -4,7 +4,7 @@
 
 #include "textureManager.h"
 SDL_Texture* textureManager::loadTexture(const std::string& path, SDL_Renderer* renderer) {
-    consoleTexture->updateStatus("Loading texture: " + path);
+    //consoleTexture->updateStatus("Loading texture: " + path);
     SDL_Surface* tempSurface = IMG_Load(path.c_str());
     if (tempSurface == nullptr)
         consoleTexture->updateStatus("IMG_Load Error: " + std::string(IMG_GetError()));
@@ -15,7 +15,6 @@ SDL_Texture* textureManager::loadTexture(const std::string& path, SDL_Renderer* 
     return tempTexture;
 }
 void textureManager::drawTexture(SDL_Texture *texture, SDL_Rect sourceRect, SDL_Rect destRect, SDL_Renderer *renderer) {
-    SDL_RenderCopyEx(renderer, texture, &sourceRect, &destRect, 0, nullptr, SDL_FLIP_NONE);
     if (SDL_RenderCopyEx(renderer, texture, &sourceRect, &destRect, 0 , nullptr, SDL_FLIP_NONE) != 0)
         consoleTexture->updateStatus("SDL_RenderCopy Error: " + std::string(SDL_GetError()));
 }

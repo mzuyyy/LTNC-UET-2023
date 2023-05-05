@@ -9,26 +9,20 @@
 
 enum GHOST_TYPE{
     BLINKY,
-    DEADLY,
     CLYDE,
-    INVISY,
     INKY,
-    FREEZY,
     PINKY,
-    SPEEDY,
-    MYSTERY,
     GHOST_TYPE_TOTAL
 };
 enum GHOST_STATE {
    GHOST_UNSET = -1,
    GHOST_INIT,
    GHOST_STAND,
-   GHOST_APPEAR,
    GHOST_CHASE,
    GHOST_SCATTER,
    GHOST_FRIGHTEN,
-   GHOST_EATEN,
-   GHOST_EAT,
+   GHOST_IS_EATEN,
+   GHOST_WAS_EATEN,
    GHOST_REBORN,
    GHOST_BLIND,
    GHOST_FREEZE,
@@ -38,21 +32,18 @@ enum GHOST_STATE {
    GHOST_STATE_TOTAL,
 };
 const int GHOST_STATE_TIME[GHOST_STATE_TOTAL] = {
-        0, 0,  20000, 10000, 12000, 1000, -1,
-        360,5000, 7000, -1, -1, 3900,
+        0, 0, 30000, 10500, 12450, 1440,-1,
+        360, 6000, 8400, -1, -1, 4800,
 };
 enum GHOST_MODE{
     GHOST_NORMAL_MODE,
     GHOST_FRIGHTEN_MODE,
     GHOST_BLIND_MODE,
     GHOST_FREEZE_MODE,
-    GHOST_SPEED_UP,
-    GHOST_SLOW_DOWN,
-    GHOST_INVISIBLE,
     GHOST_MODE_TOTAL,
 };
 const int GHOST_MODE_TIME[GHOST_MODE_TOTAL] = {
-        0, 10000, 5000, 7000, 6500, 1000, 6000,
+        0, 12450, 6000, 8400,
 };
 const int FRIGHTENED_GHOST_FRAME = 2;
 const int EATEN_GHOST_FRAME = 1;
@@ -64,47 +55,28 @@ enum HIT_TYPE{
 };
 const int GHOST_FRAME = 2;
 const int GHOST_UPGRADE_FRAME = 3;
-const Position UPGRADE_MYSTERY_POSITION = {11 * 24 + 3, 17 * 24 - 9};
 const Position GHOST_UPGRADE_POSITION = {13 * 24 + 3, 17 * 24 - 9};
-const Position UPGRADED_GHOST_APPEAR_POSITION = GHOST_UPGRADE_POSITION;
-const TileID SCATTER_POSITION[GHOST_TYPE_TOTAL - 1] = {
-        {27 * 24 + 3, -1 * 24 - 9},
+const Position SCATTER_POSITION[GHOST_TYPE_TOTAL] = {
         {27 * 24 + 3, -1 * 24 - 9},
         {0 * 24 + 3, 32 * 24 - 9},
-        {0 * 24 + 3, 32 * 24 - 9},
         {27 * 24 + 3, 32 * 24 - 9},
-        {27 * 24 + 3, 32 * 24 - 9},
-        {0 * 24 + 3, -1 * 24 - 9},
         {0 * 24 + 3, -1 * 24 - 9},
 };
-const int ANIMATION_SPEED = 100;
-const int GHOST_VELOCITY = 2;
-const int GHOST_SPEED_UP_VELOCITY = 4;
-const int GHOST_SLOW_DOWN_VELOCITY = 1;
-const int EATEN_GHOST_VELOCITY = 8;
+const int UPGRADED_ANIMATION_SPEED = 100;
+const int GHOST_VELOCITY = 1;
 const std::string GHOST_TEXTURE_PATH[GHOST_TYPE_TOTAL] = {
         "../Assets/ghost/Blinky.png",
-        "../Assets/ghost/Deadly.png",
         "../Assets/ghost/Clyde.png",
-        "../Assets/ghost/Invisy.png",
         "../Assets/ghost/Inky.png",
-        "../Assets/ghost/Freezy.png",
         "../Assets/ghost/Pinky.png",
-        "../Assets/ghost/Speedy.png",
-        "../Assets/ghost/Mystery.png",
 };
 const Position START_GHOST_POSITION[GHOST_TYPE_TOTAL] = {
         {13 * 24 + 3, 12 * 24 - 9},
-        {13 * 24 + 3, 12 * 24 - 9},
-        {11 * 24 + 3, 15 * 24 - 9},
         {11 * 24 + 3, 15 * 24 - 9},
         {13 * 24 + 3, 15 * 24 - 9},
-        {13 * 24 + 3, 15 * 24 - 9},
         {15 * 24 + 3, 15 * 24 - 9},
-        {15 * 24 + 3, 15 * 24 - 9},
-        {-1 * 24 + 3, 15 * 24 - 9},
 };
-const TileID MYSTERY_GIVE_STRENGTH_TILE_ID = {11, 14};
+
 class Ghost : public Object{
 private:
     GHOST_TYPE ghostType;
@@ -124,7 +96,6 @@ private:
     Uint32 startMode[GHOST_MODE_TOTAL]{};
 
     Position target;
-    Position startPoint, scatterPosition, standPosition;
 
     int velocity{};
 
@@ -133,16 +104,17 @@ private:
     SDL_Rect ghostFrameClip[11]{};
 
     bool isUpgrade = false;
+    bool isStop;
 public:
     Ghost(GHOST_TYPE type, SDL_Renderer *renderer, Timer *_timer) ;
     ~Ghost();
 
     void update() override;
     void render() override;
-    void speedAnimation() override;
+    //void speedAnimation() override;
     void setGhostFrameClip();
     void move();
-    void upgrade();
+    //void upgrade();
     void initState();
     void setState(GHOST_STATE newState);
     void handleState();
@@ -187,8 +159,8 @@ public:
     void setTarget(Position _target) {
         target = _target;
     }
-    TileID getTarget() const{
-        return {target.x / 24, target.y / 24};
+    Position getTarget() const{
+        return {target.x, target.y};
     }
     void leaveCage(){
         isOutCage = true;
@@ -221,8 +193,11 @@ public:
     bool isGhostMode(GHOST_MODE mode){
         return currentMode[mode];
     }
-    bool canMove(){
-        return CanMove;
+    void setStop(bool flag){
+        isStop = flag;
+    }
+    bool isGhostStop(){
+        return isStop;
     }
 };
 

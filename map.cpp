@@ -93,6 +93,13 @@ bool Map::isWallAt(Position position){
     return  tile[position.y / 24][position.x / 24] != 30 && tile[position.y / 24][position.x / 24] != 26 && tile[position.y / 24][position.x / 24] != 27;
 }
 
+bool Map::canChangeDirectionAt(Position position) {
+    return (((position.x - 14) / 24 == 30 || (position.x - 14) / 24 == 26 || (position.x - 14) / 24 == 27)
+        ||  ((position.y - 14) / 24 == 30 || (position.y - 14) / 24 == 26 || (position.y - 14) / 24 == 27)
+        || ((position.x + 12) / 24 == 30 || (position.x + 12) / 24 == 26 || (position.x + 12) / 24 == 27)
+        || ((position.y + 12) / 24 == 30 || (position.y + 12) / 24 == 26 || (position.y + 12) / 24 == 27));
+}
+
 
 
 

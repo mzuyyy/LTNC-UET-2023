@@ -67,7 +67,7 @@ void Object::setTileID(TileID _tileID) {
 void Object::setPosition(Position _position) {
     this->position = _position;
     destRect = {_position.x - 3, _position.y + 9, OBJECT_SIZE, OBJECT_SIZE};
-    tileID = {_position.x / 24, _position.y / 24};
+    tileID = {(_position.x  + 3) / 24, (_position.y  - 9) / 24};
 }
 Object::~Object() {
     SDL_DestroyTexture(objectTexture);

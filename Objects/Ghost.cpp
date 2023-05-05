@@ -13,7 +13,7 @@ Ghost::Ghost(GHOST_TYPE type, SDL_Renderer* renderer, Timer* _timer) {
 
     ghostType = type;
 
-    frameCount = 2;
+    frameCount = GHOST_FRAME;
 
     velocity = GHOST_VELOCITY;
 
@@ -51,38 +51,10 @@ Ghost::Ghost(GHOST_TYPE type, SDL_Renderer* renderer, Timer* _timer) {
 }
 void Ghost::setGhostFrameClip() {
     for (int i = 0; i < 11; i++){
-        ghostFrameClip[i].x = i * (OBJECT_PIXEL + 6);
-        ghostFrameClip[i].y = 0;
-        ghostFrameClip[i].w = OBJECT_PIXEL;
-        ghostFrameClip[i].h = OBJECT_PIXEL;
+        ghostFrameClip[i] = {i * (OBJECT_SIZE + 6), 0, OBJECT_SIZE, OBJECT_SIZE};
     }
 }
-void Ghost::speedAnimation() {
-    if (!lastPoint.empty() && !currentMode[GHOST_FREEZE_MODE]) {
-        lastDest = {0, 0, OBJECT_SIZE, OBJECT_SIZE};
-        for (int i = 0; i < lastPoint.size(); i++){
-            lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
-            textureManager::setTextureAlphaMod(ghostTexture, lastAlphaMod / (i + 1));
-            switch(currentDirection) {
-                case UP:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame], lastDest, objectRenderer);
-                    break;
-                case RIGHT:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 2], lastDest, objectRenderer);
-                    break;
-                case DOWN:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], lastDest, objectRenderer);
-                    break;
-                case LEFT:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 6], lastDest, objectRenderer);
-                    break;
-                default:
-                    break;
-            }
-        }
-        textureManager::setTextureAlphaMod(ghostTexture, lastAlphaMod);
-    }
-}
+
 void Ghost::render(){
     switch (stateQueue.front()){
         case GHOST_INIT: case GHOST_STAND:
@@ -91,23 +63,15 @@ void Ghost::render(){
         case GHOST_SCATTER: case GHOST_CHASE:
             switch (currentDirection) {
                 case UP:
-                    if (currentMode[GHOST_SPEED_UP])
-                        speedAnimation();
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame], destRect, objectRenderer);
                     break;
                 case RIGHT:
-                    if (currentMode[GHOST_SPEED_UP])
-                        speedAnimation();
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 2], destRect, objectRenderer);
                     break;
                 case DOWN:
-                    if (currentMode[GHOST_SPEED_UP])
-                        speedAnimation();
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], destRect, objectRenderer);
                     break;
                 case LEFT:
-                    if (currentMode[GHOST_SPEED_UP])
-                        speedAnimation();
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 6], destRect, objectRenderer);
                     break;
                 default:
@@ -118,7 +82,7 @@ void Ghost::render(){
         case GHOST_UPGRADE:
             ghostManager->drawTexture(ghostTexture,ghostFrameClip[frame + 8], destRect, objectRenderer);
             break;
-        case GHOST_REBORN: case GHOST_EATEN:
+        case GHOST_REBORN: case GHOST_IS_EATEN:
             switch (currentDirection) {
                 case UP:
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], destRect, objectRenderer);
@@ -151,68 +115,49 @@ void Ghost::update() {
     handleState();
     handleMode();
 
-    if(position.x < 0)
+    if (position.x < 0)
         setPosition({631, position.y});
-    else if(position.x > 630)
+    else if (position.x > 630)
         setPosition({-1, position.y});
 
-    move();
-
-    frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+    frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
 
     textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
 
     GHOST_STATE currentState = stateQueue.back();
 
-    switch (currentState){
-        case GHOST_INIT: case GHOST_STAND: case GHOST_CHASE: case GHOST_SCATTER: case GHOST_BLIND: case GHOST_FREEZE:
+    if (currentState == GHOST_UPGRADE) {
+        Uint32 tick = GHOST_STATE_TIME[GHOST_UPGRADE] - (timer->getTicks() - startState.front());
+        frameCount = GHOST_UPGRADE_FRAME / 3;
+        if (tick <= 2000) {
+            frameCount = GHOST_UPGRADE_FRAME;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+        } else {
+            frameCount = GHOST_UPGRADE_FRAME / 3;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+        }
+        return;
+    }
+    switch (currentState) {
+        case GHOST_INIT: case GHOST_STAND: case GHOST_CHASE:
+        case GHOST_SCATTER: case GHOST_BLIND: case GHOST_FREEZE:
             frameCount = GHOST_FRAME;
             ghostTexture = ghostManager->loadTexture(GHOST_TEXTURE_PATH[ghostType], objectRenderer);
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
             break;
-        case GHOST_REBORN: case GHOST_EATEN:
+        case GHOST_REBORN:
+        case GHOST_IS_EATEN:
             frameCount = 1;
             ghostTexture = ghostManager->loadTexture("../Assets/ghost/Ghost.png", objectRenderer);
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
             break;
         case GHOST_FRIGHTEN:
             frameCount = FRIGHTENED_GHOST_FRAME;
             ghostTexture = ghostManager->loadTexture("../Assets/ghost/Ghost.png", objectRenderer);
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
             break;
-        case GHOST_UPGRADE:
-            Uint32 tick = GHOST_STATE_TIME[GHOST_UPGRADE] - (timer->getTicks() - startState.front());
-            frameCount = GHOST_UPGRADE_FRAME / 3;
-            if(tick <= 2000){
-                frameCount = GHOST_UPGRADE_FRAME;
-                frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
-            }
-            else{
-                frameCount = GHOST_UPGRADE_FRAME / 3;
-                frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
-            }
-            return;
-    }
-    if (currentMode[GHOST_SPEED_UP]){
-        lastPoint.emplace_front(position);
-        if (lastPoint.size() > 15)
-            lastPoint.pop_back();
-    }
-    else {
-        lastPoint.emplace_front(position);
-        if (!lastPoint.empty())
-            lastPoint.pop_back();
-    }
-    if (currentMode[GHOST_INVISIBLE]){
-        Uint32 tick = GHOST_MODE_TIME[GHOST_INVISIBLE] - (timer->getTicks() - startMode[GHOST_INVISIBLE]);
-        Uint32 tempAlpha = 0;
-
-        if (tick <= 2000)
-            tempAlpha = 0xFF / (1 - tick / 2000);
-        else if (tick >= 4000)
-            tempAlpha = 0xFF / (1 - (GHOST_MODE_TIME[GHOST_INVISIBLE] - tick) / 2000);
-
-        textureManager::setTextureAlphaMod(ghostTexture, tempAlpha);
+        default:
+            break;
     }
 
     textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
@@ -221,15 +166,14 @@ void Ghost::update() {
         Uint32 tick = GHOST_MODE_TIME[GHOST_FRIGHTEN_MODE] - (timer->getTicks() - startMode[GHOST_FRIGHTEN_MODE]);
         if (tick <= 2000) {
             frameCount = 4;
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
         } else {
             frameCount = 2;
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
         }
-    }
-    else{
+    } else {
         frameCount = 2;
-        frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+        frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
     }
     if (currentMode[GHOST_FREEZE_MODE]) {
         Uint32 tick = GHOST_MODE_TIME[GHOST_FREEZE_MODE] - (timer->getTicks() - startMode[GHOST_FREEZE_MODE]);
@@ -237,44 +181,24 @@ void Ghost::update() {
         if (tick <= 2000) {
             frameCount = 2;
             textureManager::setTextureAlphaMod(ghostTexture, 0x7F);
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
             if (tick % 200 != 0)
                 textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
         } else {
             frameCount = 1;
-            frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
         }
-    }
-    else{
+    } else {
         frameCount = 2;
         textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
-        frame = (timer->getTicks() / ANIMATION_SPEED) % frameCount;
+        frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
     }
     destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
     tileID.x = (position.x - 3) % 24 >= 12 ? (position.x - 3) / 24 + 1 : (position.x - 3) / 24;
     tileID.y = (position.y + 9 - 144) % 24 >= 12 ? (position.y + 9 - 144) / 24 + 1 : (position.y + 9 - 144) / 24;
 }
-void Ghost::upgrade() {
-    setState(GHOST_UPGRADE);
-    switch(ghostType){
-        case BLINKY:
-            ghostType = DEADLY;
-            break;
-        case PINKY:
-            ghostType = SPEEDY;
-            break;
-        case INKY:
-            ghostType = FREEZY;
-            break;
-        case CLYDE:
-            ghostType = INVISY;
-            break;
-        default:
-            break;
-    }
-    ghostTexture = ghostManager->loadTexture(GHOST_TEXTURE_PATH[ghostType], objectRenderer);
-}
+
 void Ghost::move() {
     switch (currentDirection) {
         case UP:
@@ -292,25 +216,23 @@ void Ghost::move() {
         case NONE:
             break;
     }
-    destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
-    if (checkPosition()) {
-        tileID = {position.x / 24, position.y / 24};
-    }
 }
 void Ghost::initState(){
     if (stateQueue.empty())
         return;
-    GHOST_STATE stateFront = stateQueue.front();
-    switch (stateFront)
-    {
+    switch (stateQueue.front()){
         case GHOST_INIT:
+            isStop = true;
+
+            currentDirection = NONE;
+
             velocity = GHOST_VELOCITY;
             frameCount = GHOST_FRAME;
 
             setPosition(START_GHOST_POSITION[ghostType]);
 
             position.x = tileID.x * 24 + 3;
-            position.y = 144 + tileID.y * 24 - 9;
+            position.y = 24 * 6 + tileID.y * 24 - 9;
 
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
@@ -318,91 +240,101 @@ void Ghost::initState(){
 
             setMode(GHOST_NORMAL_MODE);
 
-            lastPoint.clear();
-
-            while (!stateQueue.empty()) {
-                stateQueue.pop();
-                startState.pop();
-            }
+            unsetState();
 
             break;
         case GHOST_STAND:
+            isStop = true;
+
+            currentDirection = NONE;
+
             velocity = 0;
             frameCount = GHOST_FRAME;
 
             setPosition(START_GHOST_POSITION[ghostType]);
 
             position.x = tileID.x * 24 + 3;
-            position.y = 144 + tileID.y * 24 - 9;
+            position.y = 24 * 6 + tileID.y * 24 - 9;
 
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
-        case GHOST_APPEAR:
-            velocity = 0;
-            frameCount = 1;
-
-            setPosition(UPGRADED_GHOST_APPEAR_POSITION);
-
-            position.x = tileID.x * 24 + 3;
-            position.y = 144 + tileID.y * 24 - 9;
-
-            destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
-
-            break;
-        case GHOST_CHASE: case GHOST_SCATTER:case GHOST_FRIGHTEN: case GHOST_BLIND:
+        case GHOST_CHASE: case GHOST_SCATTER:
             velocity = GHOST_VELOCITY;
             frameCount = GHOST_FRAME;
+
             break;
-        case GHOST_EATEN:
+        case GHOST_FRIGHTEN:
+            currentDirection = static_cast<Direction>(-currentDirection);
+
+            velocity = GHOST_VELOCITY;
+            frameCount = FRIGHTENED_GHOST_FRAME;
+
+            break;
+        case GHOST_BLIND:
+            velocity = GHOST_VELOCITY;
+            frameCount = GHOST_FRAME;
+
+            break;
+        case GHOST_IS_EATEN:
+            isStop = true;
+
+            currentDirection = NONE;
+
             velocity = 0;
+
             break;
         case GHOST_REBORN:
-            setPosition(START_GHOST_POSITION[ghostType]);
+            setPosition(START_GHOST_POSITION[BLINKY]);
 
             position.x = tileID.x * 24 + 3;
-            position.y = 144 + tileID.y * 24 - 9;
+            position.y = 24 * 6 + tileID.y * 24 - 9;
 
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
-        case GHOST_EAT:
-            setMode(GHOST_NORMAL_MODE);
+        case GHOST_WAS_EATEN:
+            isStop = true;
 
-            velocity = EATEN_GHOST_VELOCITY;
+            currentDirection = NONE;
 
-            setPosition(position);
+            velocity = GHOST_VELOCITY * 4;
+            frameCount = GHOST_FRAME / 2;
 
-            frameCount = EATEN_GHOST_FRAME;
+            setTileID(tileID);
+
+            position.x = tileID.x * 24 + 3;
+            position.y = 24 * 6 + tileID.y * 24 - 9;
+
+            destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
         case GHOST_FREEZE:
             velocity = 0;
-
             frameCount = GHOST_FRAME;
+
             break;
         case GHOST_UPGRADE:
+            isStop = true;
+
+            currentDirection = NONE;
+
             velocity = 0;
+            frameCount = GHOST_UPGRADE_FRAME;
 
             setPosition(GHOST_UPGRADE_POSITION);
 
-            if (ghostType == MYSTERY) {
-                setTarget(UPGRADE_MYSTERY_POSITION);
-            }
-
             position.x = tileID.x * 24 + 3;
-            position.y = 144 + tileID.y * 24 - 9;
+            position.y = 24 * 6 + tileID.y * 24 - 9;
 
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
-            frameCount = GHOST_FRAME;
-            break;
         default:
             break;
     }
 }
 void Ghost::setState(GHOST_STATE newState) {
-    if (newState == GHOST_APPEAR || newState == GHOST_UPGRADE) {
+    if (newState == GHOST_UPGRADE){
         while (!stateQueue.empty()) {
             stateQueue.pop();
             startState.pop();
@@ -412,13 +344,12 @@ void Ghost::setState(GHOST_STATE newState) {
         initState();
         return;
     }
-    if (!stateQueue.empty()) {
+    if (!stateQueue.empty())
         if (stateQueue.front() == GHOST_STAND && newState != GHOST_SCATTER)
             return;
-    }
     switch (newState){
         case GHOST_INIT:
-            if (!stateQueue.empty()) {
+            while (!stateQueue.empty()) {
                 stateQueue.pop();
                 startState.pop();
             }
@@ -426,17 +357,18 @@ void Ghost::setState(GHOST_STATE newState) {
         case GHOST_FRIGHTEN:
             setMode(GHOST_FRIGHTEN_MODE);
             break;
-        case GHOST_EATEN:
-            if(!stateQueue.empty()) {
+        case GHOST_IS_EATEN:
+            while (!stateQueue.empty()) {
                 stateQueue.pop();
                 startState.pop();
             }
             setMode(GHOST_NORMAL_MODE);
             break;
         case GHOST_FREEZE:
-            if (!stateQueue.empty() && (stateQueue.front() == GHOST_FRIGHTEN || stateQueue.front() == GHOST_EAT || stateQueue.front() == GHOST_REBORN))
-                break;
-            while(!stateQueue.empty()) {
+            if (!stateQueue.empty())
+                if (stateQueue.front() == GHOST_FRIGHTEN || stateQueue.front() == GHOST_WAS_EATEN || stateQueue.front() == GHOST_REBORN)
+                    return;
+            while (!stateQueue.empty()) {
                 stateQueue.pop();
                 startState.pop();
             }
@@ -449,13 +381,13 @@ void Ghost::setState(GHOST_STATE newState) {
             break;
     }
     if (!stateQueue.empty()) {
-        if (stateQueue.front() == GHOST_STAND && newState != GHOST_SCATTER) {
+        if (stateQueue.front() == GHOST_STAND && newState == GHOST_SCATTER) {
             isOutCage = true;
-            setPosition(START_GHOST_POSITION[BLINKY]);
+            leaveCage();
             stateQueue.pop();
             startState.pop();
         }
-        if (stateQueue.front() == GHOST_EAT)
+        if (stateQueue.front() == GHOST_WAS_EATEN)
             return;
     }
     stateQueue.emplace(newState);
@@ -465,19 +397,24 @@ void Ghost::setState(GHOST_STATE newState) {
 }
 
 void Ghost::handleState() {
-    if(!stateQueue.empty())
+    if (!stateQueue.empty()){
         if (stateQueue.back() == GHOST_UPGRADE){
             Uint32 tick = timer->getTicks() - startState.front();
-            if(tick > GHOST_STATE_TIME[stateQueue.front()]){
+            if (tick > GHOST_STATE_TIME[stateQueue.back()]) {
                 isUpgrade = true;
                 return;
             }
             return;
         }
-    if(stateQueue.back() == GHOST_FREEZE || stateQueue.back() == GHOST_REBORN) {
-        unsetState();
-        return;
+        if (stateQueue.back() == GHOST_FREEZE || stateQueue.back() == GHOST_REBORN){
+            unsetState();
+            return;
+        }
+        else if (stateQueue.front() == GHOST_STAND)
+            return;
     }
+    if (currentDirection != NONE)
+        move();
     unsetState();
 }
 void Ghost::unsetState() {
@@ -485,75 +422,83 @@ void Ghost::unsetState() {
         return;
     if (stateQueue.front() == GHOST_REBORN){
         Uint32 tick = timer->getTicks() - startState.front();
-        if (tick > GHOST_STATE_TIME[stateQueue.front()]) {
+        if (tick >= GHOST_STATE_TIME[stateQueue.front()]){
             stateQueue.pop();
             startState.pop();
             setState(GHOST_CHASE);
         }
     }
     if (stateQueue.size() == 2)
-        if (stateQueue.front() == GHOST_FREEZE && stateQueue.back() == GHOST_FRIGHTEN) {
+        if (stateQueue.front() == GHOST_FRIGHTEN && stateQueue.back() == GHOST_FREEZE){
             Uint32 tick = timer->getTicks() - startState.front();
-            if (tick > GHOST_STATE_TIME[stateQueue.front()]) {
+            if (tick >= GHOST_STATE_TIME[stateQueue.front()]){
                 stateQueue.pop();
                 startState.pop();
+                setState(GHOST_CHASE);
             }
         }
-    if (!checkPosition() && stateQueue.front() != GHOST_EATEN && stateQueue.front() != GHOST_FREEZE && stateQueue.front() != GHOST_INIT)
+    if (!checkPosition() && stateQueue.front() != GHOST_IS_EATEN && stateQueue.front() != GHOST_FREEZE
+        && stateQueue.front() != GHOST_INIT)
         return;
-    if (stateQueue.size() > 1 && stateQueue.back() == GHOST_FRIGHTEN)
-        while (stateQueue.front() != GHOST_FRIGHTEN) {
+    if (stateQueue.back() == GHOST_FRIGHTEN && stateQueue.size() > 1)
+        while (stateQueue.front() != GHOST_FRIGHTEN){
             stateQueue.pop();
             startState.pop();
         }
-    if (stateQueue.size() > 1 && stateQueue.back() == GHOST_EATEN)
-        if (checkPosition() && position == target){
+    if (stateQueue.front() == GHOST_WAS_EATEN) {
+        if (checkPosition() && position == target) {
             stateQueue.pop();
             startState.pop();
             setState(GHOST_REBORN);
         }
-    if (stateQueue.size() > 1 && stateQueue.back() == GHOST_BLIND)
+        return;
+    }
+    if (stateQueue.back() == GHOST_BLIND && stateQueue.size() > 1)
         if (checkPosition())
-            while (stateQueue.front() != GHOST_BLIND) {
+            while (stateQueue.front() != GHOST_BLIND){
                 stateQueue.pop();
                 startState.pop();
             }
-
-    GHOST_STATE lastState = GHOST_INIT;
-    while (!stateQueue.empty()) {
+    GHOST_STATE lastState = GHOST_UNSET;
+    while (!stateQueue.empty()){
         Uint32 tick = timer->getTicks() - startState.front();
-        if (tick >= GHOST_STATE_TIME[stateQueue.front()]) {
+        if (tick >= GHOST_STATE_TIME[stateQueue.front()]){
             lastState = stateQueue.front();
             stateQueue.pop();
             startState.pop();
         }
+        else break;
     }
-    if (lastState != GHOST_UNSET) {
+    if (lastState != GHOST_UNSET){
         switch (lastState){
             case GHOST_INIT:
                 setState(GHOST_STAND);
                 break;
-            case GHOST_SCATTER: case GHOST_FREEZE: case GHOST_BLIND:
-                setState(GHOST_CHASE);
-                break;
             case GHOST_CHASE:
                 setState(GHOST_SCATTER);
                 break;
-            case GHOST_FRIGHTEN:
-                if (!stateQueue.empty()) {
-                    if (stateQueue.front() != GHOST_FREEZE)
-                        setState(GHOST_CHASE);
-                }
-                else setState(GHOST_CHASE);
+            case GHOST_SCATTER:
+                setState(GHOST_CHASE);
                 break;
-            case GHOST_EATEN:
-                setState(GHOST_EAT);
+            case GHOST_FRIGHTEN:
+                if (!stateQueue.empty())
+                    if (stateQueue.front() != GHOST_FREEZE)
+                        break;
+                setState(GHOST_CHASE);
+                break;
+            case GHOST_IS_EATEN:
+                setState(GHOST_WAS_EATEN);
+                break;
+            case GHOST_FREEZE: case GHOST_BLIND:
+                setState(GHOST_CHASE);
                 break;
             default:
                 break;
         }
+        initState();
     }
 }
+
 void Ghost::setMode(const GHOST_MODE &mode) {
     currentMode[mode] = true;
     startMode[mode] = timer->getTicks();
@@ -562,54 +507,17 @@ void Ghost::setMode(const GHOST_MODE &mode) {
             unsetMode(GHOST_FRIGHTEN_MODE);
             unsetMode(GHOST_FREEZE_MODE);
             unsetMode(GHOST_BLIND_MODE);
-            unsetMode(GHOST_SLOW_DOWN);
-            unsetMode(GHOST_SPEED_UP);
-            unsetMode(GHOST_INVISIBLE);
-            break;
-        case GHOST_SPEED_UP:
-            unsetMode(GHOST_SLOW_DOWN);
-            if (checkPosition())
-                velocity = GHOST_SPEED_UP_VELOCITY;
-        case GHOST_FRIGHTEN_MODE:
-            unsetMode(GHOST_SPEED_UP);
-            unsetMode(GHOST_INVISIBLE);
-            break;
         default:
             break;
     }
 }
 void Ghost::handleMode() {
-    if (stateQueue.front() == GHOST_EAT) {
-        if (checkPosition())
-            velocity = EATEN_GHOST_VELOCITY;
-    }
-    else{
-        if (checkPosition())
-            velocity = GHOST_VELOCITY;
-    }
-    for (int i = GHOST_NORMAL_MODE; i < GHOST_MODE_TOTAL; i++)
-        if (currentMode[i]) {
+    for (int i = GHOST_FRIGHTEN_MODE; i < GHOST_MODE_TOTAL; i++)
+        if (currentMode[i]){
             Uint32 tick = timer->getTicks() - startMode[i];
-            if (tick > GHOST_MODE_TIME[i]) {
-                unsetMode((GHOST_MODE) i);
-            }
-            else {
-                if (i == GHOST_SPEED_UP && stateQueue.front() != GHOST_EAT){
-                    if (tick <= 1600){
-                        if (checkPosition())
-                            velocity = GHOST_SPEED_UP_VELOCITY;
-                    }
-                    else {
-                        if (checkPosition())
-                            velocity = GHOST_VELOCITY;
-                    }
-                }
-            }
+            if (tick >= GHOST_MODE_TIME[i])
+                unsetMode((GHOST_MODE)i);
         }
-    if (currentMode[GHOST_SLOW_DOWN] && stateQueue.front() != GHOST_EAT){
-        if (checkPosition())
-            velocity = GHOST_SLOW_DOWN_VELOCITY;
-    }
 }
 void Ghost::unsetMode(const GHOST_MODE &mode) {
     currentMode[mode] = false;
