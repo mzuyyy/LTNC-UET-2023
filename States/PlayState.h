@@ -10,6 +10,8 @@
 #include "../Objects/UpgradedGhost.h"
 #include "../map.h"
 #include "../logStatus.h"
+#include "../Objects/Mystery.h"
+#include "../GameStatus.h"
 
 struct Distance {
     static double Euclidean(const Position& a, const Position& b){
@@ -30,6 +32,17 @@ enum PLAY_STATE_TYPE{
     WIN,
     PLAY_STATE_TYPE_TOTAL,
 };
+enum GHOST_STATE_TYPE{
+    FRIGHTEN_STATE,
+    BLIND_STATE,
+    FREEZE_STATE,
+    GHOST_STATE_TYPE_TOTAL
+};
+enum BUTTON {
+    PAUSED_RESUME,
+    PAUSED_EXIT,
+    BUTTON_TOTAL
+};
 class PlayState : public State{
 public:
     PlayState(SDL_Renderer *renderer, Engine *_engine);
@@ -42,31 +55,76 @@ public:
     void setState(PLAY_STATE_TYPE state);
     void handleState();
 
+    void handleRenderMap();
+
+    void handleGhostRender(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostUpdate(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostState(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostMovement(Ghost *ghost, UpgradedGhost *upgradedGhost);
+    void handleGhostDead(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostInit(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostMode(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleGhostOutCage(int dotRequire, Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void setGhostState(Ghost *ghost, UpgradedGhost *upgradedGhost, GHOST_STATE_TYPE state);
     void handleGhostTarget(Ghost *ghost);
     void handleChaseTarget(Ghost *ghost);
-    Direction calculateDirection(Ghost *ghost);
     void handleGhostMove(Ghost *ghost);
-    HIT_TYPE handleGhostHit(Ghost* ghost, Pacman* pacman);
+    void handleGhostUpgrade(Ghost *ghost, UpgradedGhost *upgradedGhost);
 
+    void handleUpgradedGhostTarget(UpgradedGhost *upgradedGhost);
+    void handleUpgradedChaseTarget(UpgradedGhost *upgradedGhost);
+    void handleUpgradedGhostMove(UpgradedGhost* upgradedGhost);
+
+    void handleMysteryMove();
+
+    HIT_TYPE handleGhostHit(Ghost *ghost, Pacman *_pacman);
+    HIT_TYPE handleUpgradedGhostHit(UpgradedGhost *upgradedGhost);
+
+    Direction calculateDirection(Ghost *ghost);
+    Direction calculateDirection(UpgradedGhost* upgradedGhost);
+    Direction calculateMysteryDirection();
+
+
+    void initUpgraded(Ghost* ghost, UpgradedGhost* upgradedGhost);
+    void handleUpgrade(Ghost* ghost, UpgradedGhost* upgradedGhost);
 
     void setControl();
 
-    void keyDown(const int code) override;
-    void keyUp(const int code) override;
+    void keyDown(int code) override;
+    void keyUp(int code) override;
+
+    void updateButton(int change);
 private:
+    textureManager* playStateManager;
+
     Log* consolePlayState;
     int currentState{};
+    int lastState{};
 
     int controlKey[CONTROL_DIRECTION_TOTAL]{};
 
-    int dotCurrent = 0;
+    int currentDot = 0;
+
+    SDL_Renderer* playStateRenderer;
+
+    SDL_Texture* pauseTexture;
+    SDL_Rect sourcePause{};
+    SDL_Rect destPause{};
+    int currentPauseButton{};
+    bool isChoosing[2]{};
+
+    SDL_Texture* buttonTexture;
+    SDL_Rect buttonPauseFrameClip[2][BUTTON_TOTAL]{};
+    SDL_Rect buttonDest[BUTTON_TOTAL]{};
+
     Pacman* pacman;
 
     Ghost* blinky;
     Ghost* clyde;
     Ghost* inky;
     Ghost* pinky;
-    Ghost* mystery{};
+
+    Mystery* mystery;
 
     UpgradedGhost* deadly;
     UpgradedGhost* invisy;
@@ -74,6 +132,8 @@ private:
     UpgradedGhost* speedy;
 
     Map* map;
+
+    GameStatus* gameStatus;
 };
 
 

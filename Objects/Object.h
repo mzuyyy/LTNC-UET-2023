@@ -12,10 +12,10 @@
 #include <SDL_render.h>
 enum Direction{
     NONE = 0,
-    UP = -1,
-    DOWN = 1,
-    LEFT = -2,
-    RIGHT = 2,
+    UP = -2,
+    DOWN = 2,
+    LEFT = 1,
+    RIGHT = -1,
 };
 
 struct Position{
@@ -92,7 +92,7 @@ protected:
     bool CanMove = true;
     bool isDead = false;
 public:
-    Object(SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_TYPE_TOTAL, Timer *_timer = nullptr);
+    explicit Object(SDL_Renderer *renderer = nullptr, OBJECT_TYPE type = OBJECT_TYPE_TOTAL, Timer *_timer = nullptr);
     ~Object();
 
     virtual void update();
@@ -105,11 +105,10 @@ public:
     void setTileID(TileID _tileID);
 
     virtual Position getPosition();
+
     void setPosition(Position _position);
 
     bool checkPosition() const;
-
-    bool checkCollision(Object* object) const;
 
     virtual void speedAnimation();
     textureManager* objectManager = new textureManager();

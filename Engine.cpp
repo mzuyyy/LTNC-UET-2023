@@ -29,16 +29,16 @@ void Engine::load(const std::string &path) {
         config >> musicVolume >> channelVolume >> pacmanType >> controlType;
         config.close();
         std::cerr << musicVolume << " " << channelVolume << std::endl << pacmanType << std::endl << controlType;
-        consoleEngine->updateStatus("Load game config successfully!");
+        consoleEngine->updateStatus("Load game Data successfully!");
     } else {
-        consoleEngine->updateStatus("Load game config failed!");
+        consoleEngine->updateStatus("Load game Data failed!");
     }
 }
 
 void Engine::loadHighScore(const std::string &path) {
     std::ifstream highScoreFile(path, std::ios::binary);
     highScoreSet.clear();
-    if (highScoreFile.is_open()) {
+    if (!highScoreFile.eof()) {
         int res;
         highScoreFile >> res;
         while (res--){
@@ -64,17 +64,17 @@ void Engine::update() const {
 
 void Engine::save(const std::string &path) const {
     std::ofstream config(path);
-    if (config.is_open()) {
+    if (!config.eof()) {
         config << musicVolume << " " << channelVolume << std::endl << pacmanType << std::endl << controlType;
         config.close();
-        consoleEngine->updateStatus("Save game config successfully!");
+        consoleEngine->updateStatus("Save game Data successfully!");
     } else {
-        consoleEngine->updateStatus("Save game config failed!");
+        consoleEngine->updateStatus("Save game Data failed!");
     }
 }
 
-void Engine::saveHighScore(const std::string &path, Uint32 score, int level) {
-    std::ofstream highScoreFile(path, std::ios::binary);
+void Engine::saveHighScore(Uint32 score, int level) {
+    std::ofstream highScoreFile(HIGH_SCORE_PATH, std::ios::binary);
 
     lastScore = score;
     lastLevel = level;

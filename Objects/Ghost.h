@@ -6,7 +6,7 @@
 #define BTL_GHOST_H
 
 #include "Object.h"
-
+#include "pacman.h"
 enum GHOST_TYPE{
     BLINKY,
     CLYDE,
@@ -49,21 +49,22 @@ const int FRIGHTENED_GHOST_FRAME = 2;
 const int EATEN_GHOST_FRAME = 1;
 enum HIT_TYPE{
     NONE_HIT = 0,
-    PACMAN_HIT,
     GHOST_HIT,
+    PACMAN_HIT,
     HIT_TYPE_TOTAL,
 };
 const int GHOST_FRAME = 2;
 const int GHOST_UPGRADE_FRAME = 3;
 const Position GHOST_UPGRADE_POSITION = {13 * 24 + 3, 17 * 24 - 9};
 const Position SCATTER_POSITION[GHOST_TYPE_TOTAL] = {
-        {27 * 24 + 3, -1 * 24 - 9},
-        {0 * 24 + 3, 32 * 24 - 9},
-        {27 * 24 + 3, 32 * 24 - 9},
-        {0 * 24 + 3, -1 * 24 - 9},
+        {28 * 24, 5 * 24},
+        {0 * 24, 32 * 24},
+        {28 * 24, 32 * 24},
+        {0 * 24, 5 * 24},
 };
-const int UPGRADED_ANIMATION_SPEED = 100;
+const int GHOST_ANIMATION_SPEED = 100;
 const int GHOST_VELOCITY = 1;
+const std::string DEAD_N_FRIGHTEN_TEXTURE_PATH = "../Assets/ghost/Ghost.png";
 const std::string GHOST_TEXTURE_PATH[GHOST_TYPE_TOTAL] = {
         "../Assets/ghost/Blinky.png",
         "../Assets/ghost/Clyde.png",
@@ -81,6 +82,8 @@ class Ghost : public Object{
 private:
     GHOST_TYPE ghostType;
 
+    SDL_Texture* ghostTextures[GHOST_TYPE_TOTAL];
+    SDL_Texture* textures;
     SDL_Texture* ghostTexture;
 
     textureManager* ghostManager;
@@ -104,7 +107,8 @@ private:
     SDL_Rect ghostFrameClip[11]{};
 
     bool isUpgrade = false;
-    bool isStop;
+
+    GHOST_STATE lastGhostState{};
 public:
     Ghost(GHOST_TYPE type, SDL_Renderer *renderer, Timer *_timer) ;
     ~Ghost();
@@ -123,7 +127,17 @@ public:
     void handleMode();
     void unsetMode(const GHOST_MODE& mode);
 
-    Position getPosition() override{
+    void setUpgrade(bool flag){
+        isUpgrade = flag;
+    }
+    bool checkCollision(Pacman* _pacman) {
+        return (getPosition().x == _pacman->getPosition().x && abs(getPosition().y - _pacman->getPosition().y) <= 21) ||
+        (getPosition().y == _pacman->getPosition().y && abs(getPosition().x - _pacman->getPosition().x) <= 21);
+    }
+    GHOST_STATE getLastState(){
+        return lastGhostState;
+    }
+    Position getPosition() override {
         Position temp = position;
         temp.y -= 24 * 6;
         temp.x += 21;
@@ -164,22 +178,46 @@ public:
     }
     void leaveCage(){
         isOutCage = true;
-        setTileID({13, 11});
+        Position temp = START_GHOST_POSITION[BLINKY];
+        temp.y += 24 * 5;
+        setPosition(temp);
     };
     GHOST_TYPE getType(){
         return ghostType;
     }
-    bool isUpgradeState() const{
+    bool isGhostUpgrade() const{
         return isUpgrade;
     }
-    const Position getStartPosition() const{
-        return START_GHOST_POSITION[ghostType];
+    Position getUpgradePosition() const{
+        Position temp = GHOST_UPGRADE_POSITION;
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
+    }
+    Position getBlinkyStartPosition() const{
+        Position temp = START_GHOST_POSITION[BLINKY];
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
+    }
+    Position getStartPosition() const{
+        Position temp = START_GHOST_POSITION[ghostType];
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
     }
     bool isGhostOutCage() const{
         return isOutCage;
     }
     Position getScatterPosition() const{
-        return SCATTER_POSITION[ghostType];
+        Position temp = SCATTER_POSITION[ghostType];
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
     }
     GHOST_STATE getCurrentState() const{
         return stateQueue.empty() ? GHOST_UNSET : stateQueue.front();
@@ -193,11 +231,8 @@ public:
     bool isGhostMode(GHOST_MODE mode){
         return currentMode[mode];
     }
-    void setStop(bool flag){
-        isStop = flag;
-    }
-    bool isGhostStop(){
-        return isStop;
+    int getVelocity(){
+        return velocity;
     }
 };
 

@@ -56,16 +56,8 @@ bool StateManager::pullRequest() {
                 stackState(new MenuState(stateManagerRenderer));
                 break;
             case PLAY_STATE:
-                stateManagerConsole->updateStatus("play state");
                 stackState(new PlayState(stateManagerRenderer, engine));
                 break;
-            case PAUSED_STATE:{
-                auto* newMenuState = new MenuState(stateManagerRenderer);
-                //newMenuState->setMenuState(PAUSE);
-                stackState(newMenuState);
-                delete newMenuState;
-                break;
-            }
             case GAME_OVER_STATE: {
                 auto *newMenuState = new MenuState(stateManagerRenderer);
                 newMenuState->setMenuState(GAME_OVER);
@@ -74,10 +66,7 @@ bool StateManager::pullRequest() {
                 break;
             }
             case WIN_GAME_STATE: {
-                auto *newMenuState = new MenuState(stateManagerRenderer);
-                newMenuState->setMenuState(YOU_WIN);
-                stackState(newMenuState);
-                delete newMenuState;
+                //stackState() ;
                 break;
             }
             case CLOSE_STATE:

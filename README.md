@@ -24,3 +24,10 @@ Phần Game cổ điển bao gồm:
 - Ghost (bao gồm 4 nhân vật) là nhân vật sẽ đuổi Pacman -> nhằm không cho Pacman ăn các dot.
 - Gameplay của Pacman vô cùng đơn giản, bạn sẽ phải ăn hết các hạt vàng trong khi phải cố gắng né 4 con ma trong mê cung, khi ăn hạt to sẽ có khả năng cường 
 hóa bản thân để có thể tấn công ngược lại đám ma kia.
+### Prepared and references
+Em đã có sự tham khảo các nguồn bên dưới:
+- Một series video về lập trình game với SDL2 của [Madsycode](https://www.youtube.com/watch?v=1KD4Ae0tX0g&list=PL-K0viiuJ2RctP5nlJlqmHGeh66-GOZR).
+- Tư duy và các bước làm game Pacman của [Kofybrek](https://youtu.be/vC0d1rDmPBs). 
+- Tư duy đơn giản về AI của những con ghost từ [Pac-Man Ghost AI Explained](https://www.youtube.com/watch?v=ataGotQ7ir8)
+- Một số các tài liệu và video về OOP hay SDL2 mà em không nhớ rõ nguồn.
+- Đồng thời với sự giúp đỡ của các anh chị khóa trên và các bạn.

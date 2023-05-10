@@ -21,7 +21,10 @@ Ghost::Ghost(GHOST_TYPE type, SDL_Renderer* renderer, Timer* _timer) {
 
     Ghost::setGhostFrameClip();
 
-    ghostTexture = ghostManager->loadTexture(GHOST_TEXTURE_PATH[ghostType], objectRenderer);
+    textures = ghostManager->loadTexture(DEAD_N_FRIGHTEN_TEXTURE_PATH, objectRenderer);
+
+    ghostTextures[ghostType] = ghostManager->loadTexture(GHOST_TEXTURE_PATH[ghostType], objectRenderer);
+    ghostTexture = ghostTextures[ghostType];
 
     switch (ghostType) {
         case BLINKY:
@@ -60,7 +63,7 @@ void Ghost::render(){
         case GHOST_INIT: case GHOST_STAND:
             ghostManager->drawTexture(ghostTexture,ghostFrameClip[ghostType], destRect, objectRenderer);
             break;
-        case GHOST_SCATTER: case GHOST_CHASE:
+        case GHOST_SCATTER: case GHOST_CHASE : case GHOST_BLIND:
             switch (currentDirection) {
                 case UP:
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame], destRect, objectRenderer);
@@ -82,7 +85,7 @@ void Ghost::render(){
         case GHOST_UPGRADE:
             ghostManager->drawTexture(ghostTexture,ghostFrameClip[frame + 8], destRect, objectRenderer);
             break;
-        case GHOST_REBORN: case GHOST_IS_EATEN:
+        case GHOST_REBORN: case GHOST_WAS_EATEN:
             switch (currentDirection) {
                 case UP:
                     ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], destRect, objectRenderer);
@@ -103,6 +106,23 @@ void Ghost::render(){
         case GHOST_FRIGHTEN:
             ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame], destRect, objectRenderer);
             break;
+        case GHOST_FREEZE:
+            switch (currentDirection) {
+                case UP:
+                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[1], destRect, objectRenderer);
+                    break;
+                case RIGHT:
+                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[3], destRect, objectRenderer);
+                    break;
+                case DOWN:
+                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[5], destRect, objectRenderer);
+                    break;
+                case LEFT:
+                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[7], destRect, objectRenderer);
+                    break;
+                case NONE:
+                    break;
+            }
         default:
             ghostManager->drawTexture(ghostTexture, ghostFrameClip[ghostType], destRect, objectRenderer);
             break;
@@ -119,8 +139,12 @@ void Ghost::update() {
         setPosition({631, position.y});
     else if (position.x > 630)
         setPosition({-1, position.y});
+    if (position.y < 156 && currentDirection == UP)
+        currentDirection = NONE;
+    else if (position.y > 852 && currentDirection == DOWN)
+        currentDirection = NONE;
 
-    frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+    frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
 
     textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
 
@@ -131,10 +155,10 @@ void Ghost::update() {
         frameCount = GHOST_UPGRADE_FRAME / 3;
         if (tick <= 2000) {
             frameCount = GHOST_UPGRADE_FRAME;
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
         } else {
             frameCount = GHOST_UPGRADE_FRAME / 3;
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
         }
         return;
     }
@@ -142,19 +166,18 @@ void Ghost::update() {
         case GHOST_INIT: case GHOST_STAND: case GHOST_CHASE:
         case GHOST_SCATTER: case GHOST_BLIND: case GHOST_FREEZE:
             frameCount = GHOST_FRAME;
-            ghostTexture = ghostManager->loadTexture(GHOST_TEXTURE_PATH[ghostType], objectRenderer);
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            ghostTexture =  ghostTextures[ghostType];
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
             break;
-        case GHOST_REBORN:
-        case GHOST_IS_EATEN:
+        case GHOST_REBORN: case GHOST_WAS_EATEN:
             frameCount = 1;
-            ghostTexture = ghostManager->loadTexture("../Assets/ghost/Ghost.png", objectRenderer);
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            ghostTexture = textures;
+            frame = 1;
             break;
         case GHOST_FRIGHTEN:
             frameCount = FRIGHTENED_GHOST_FRAME;
-            ghostTexture = ghostManager->loadTexture("../Assets/ghost/Ghost.png", objectRenderer);
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            ghostTexture = textures;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
             break;
         default:
             break;
@@ -166,14 +189,14 @@ void Ghost::update() {
         Uint32 tick = GHOST_MODE_TIME[GHOST_FRIGHTEN_MODE] - (timer->getTicks() - startMode[GHOST_FRIGHTEN_MODE]);
         if (tick <= 2000) {
             frameCount = 4;
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
         } else {
             frameCount = 2;
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
         }
     } else {
         frameCount = 2;
-        frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+        frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
     }
     if (currentMode[GHOST_FREEZE_MODE]) {
         Uint32 tick = GHOST_MODE_TIME[GHOST_FREEZE_MODE] - (timer->getTicks() - startMode[GHOST_FREEZE_MODE]);
@@ -181,17 +204,17 @@ void Ghost::update() {
         if (tick <= 2000) {
             frameCount = 2;
             textureManager::setTextureAlphaMod(ghostTexture, 0x7F);
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
-            if (tick % 200 != 0)
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
+            if (frame)
                 textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
         } else {
             frameCount = 1;
-            frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+            frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
         }
     } else {
         frameCount = 2;
         textureManager::setTextureAlphaMod(ghostTexture, 0xFF);
-        frame = (timer->getTicks() / UPGRADED_ANIMATION_SPEED) % frameCount;
+        frame = (timer->getTicks() / GHOST_ANIMATION_SPEED) % frameCount;
     }
     destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
@@ -200,30 +223,17 @@ void Ghost::update() {
 }
 
 void Ghost::move() {
-    switch (currentDirection) {
-        case UP:
-            position.y -= velocity;
-            break;
-        case DOWN:
-            position.y += velocity;
-            break;
-        case LEFT:
-            position.x -= velocity;
-            break;
-        case RIGHT:
-            position.x += velocity;
-            break;
-        case NONE:
-            break;
-    }
+    Object::move(currentDirection, velocity);
+    /*if (ghostType == BLINKY){
+         std::cerr << "Blinky's velocity " << getVelocity() << std::endl;
+         std::cerr << "Blinky x = " << getPosition().x << "; y = " << getPosition().y << std::endl;
+     }*/
 }
 void Ghost::initState(){
     if (stateQueue.empty())
         return;
-    switch (stateQueue.front()){
+    switch (stateQueue.front()) {
         case GHOST_INIT:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = GHOST_VELOCITY;
@@ -244,8 +254,6 @@ void Ghost::initState(){
 
             break;
         case GHOST_STAND:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = 0;
@@ -259,7 +267,8 @@ void Ghost::initState(){
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
-        case GHOST_CHASE: case GHOST_SCATTER:
+        case GHOST_CHASE:
+        case GHOST_SCATTER:
             velocity = GHOST_VELOCITY;
             frameCount = GHOST_FRAME;
 
@@ -277,8 +286,6 @@ void Ghost::initState(){
 
             break;
         case GHOST_IS_EATEN:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = 0;
@@ -293,15 +300,11 @@ void Ghost::initState(){
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
-        case GHOST_WAS_EATEN:
-            isStop = true;
-
+        case GHOST_WAS_EATEN:{
             currentDirection = NONE;
 
-            velocity = GHOST_VELOCITY * 4;
+            velocity = GHOST_VELOCITY * 6;
             frameCount = GHOST_FRAME / 2;
-
-            setTileID(tileID);
 
             position.x = tileID.x * 24 + 3;
             position.y = 24 * 6 + tileID.y * 24 - 9;
@@ -309,20 +312,17 @@ void Ghost::initState(){
             destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
 
             break;
+        }
         case GHOST_FREEZE:
             velocity = 0;
             frameCount = GHOST_FRAME;
 
             break;
         case GHOST_UPGRADE:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = 0;
             frameCount = GHOST_UPGRADE_FRAME;
-
-            setPosition(GHOST_UPGRADE_POSITION);
 
             position.x = tileID.x * 24 + 3;
             position.y = 24 * 6 + tileID.y * 24 - 9;
@@ -354,6 +354,8 @@ void Ghost::setState(GHOST_STATE newState) {
                 startState.pop();
             }
             break;
+        case GHOST_SCATTER:
+            break;
         case GHOST_FRIGHTEN:
             setMode(GHOST_FRIGHTEN_MODE);
             break;
@@ -366,13 +368,19 @@ void Ghost::setState(GHOST_STATE newState) {
             break;
         case GHOST_FREEZE:
             if (!stateQueue.empty())
-                if (stateQueue.front() == GHOST_FRIGHTEN || stateQueue.front() == GHOST_WAS_EATEN || stateQueue.front() == GHOST_REBORN)
+                if (stateQueue.front() == GHOST_WAS_EATEN || stateQueue.front() == GHOST_REBORN)
                     return;
+            if (stateQueue.front() == GHOST_FRIGHTEN){
+                setMode(GHOST_FREEZE_MODE);
+                velocity = 0;
+                return;
+            }
             while (!stateQueue.empty()) {
                 stateQueue.pop();
                 startState.pop();
             }
             setMode(GHOST_FREEZE_MODE);
+            velocity = 0;
             break;
         case GHOST_BLIND:
             setMode(GHOST_BLIND_MODE);
@@ -406,6 +414,20 @@ void Ghost::handleState() {
             }
             return;
         }
+        if (stateQueue.back() == GHOST_WAS_EATEN){
+            if (checkPosition()){
+                velocity = GHOST_VELOCITY * 4;
+            }
+            else {
+                velocity = GHOST_VELOCITY;
+            }
+        }
+        if (stateQueue.front() == GHOST_WAS_EATEN && position.x == START_GHOST_POSITION[BLINKY].x && position.y == START_GHOST_POSITION[BLINKY].y + 24 * 5){
+            stateQueue.pop();
+            startState.pop();
+            setState(GHOST_SCATTER);
+            return;
+        }
         if (stateQueue.back() == GHOST_FREEZE || stateQueue.back() == GHOST_REBORN){
             unsetState();
             return;
@@ -428,15 +450,24 @@ void Ghost::unsetState() {
             setState(GHOST_CHASE);
         }
     }
-    if (stateQueue.size() == 2)
-        if (stateQueue.front() == GHOST_FRIGHTEN && stateQueue.back() == GHOST_FREEZE){
+    if (stateQueue.size() == 2) {
+        if ((stateQueue.front() == GHOST_FRIGHTEN && stateQueue.back() == GHOST_FREEZE)) {
             Uint32 tick = timer->getTicks() - startState.front();
-            if (tick >= GHOST_STATE_TIME[stateQueue.front()]){
+            if (tick >= GHOST_STATE_TIME[stateQueue.front()]) {
                 stateQueue.pop();
                 startState.pop();
                 setState(GHOST_CHASE);
             }
         }
+        else if (stateQueue.front() == GHOST_SCATTER && stateQueue.back() == GHOST_FREEZE){
+            Uint32 tick = timer->getTicks() - startState.front();
+            if (tick >= GHOST_STATE_TIME[stateQueue.front()]) {
+                stateQueue.pop();
+                startState.pop();
+                setState(GHOST_SCATTER);
+            }
+        }
+    }
     if (!checkPosition() && stateQueue.front() != GHOST_IS_EATEN && stateQueue.front() != GHOST_FREEZE
         && stateQueue.front() != GHOST_INIT)
         return;
@@ -459,18 +490,19 @@ void Ghost::unsetState() {
                 stateQueue.pop();
                 startState.pop();
             }
-    GHOST_STATE lastState = GHOST_UNSET;
+    lastGhostState = GHOST_UNSET;
     while (!stateQueue.empty()){
         Uint32 tick = timer->getTicks() - startState.front();
         if (tick >= GHOST_STATE_TIME[stateQueue.front()]){
-            lastState = stateQueue.front();
+            lastGhostState = stateQueue.front();
             stateQueue.pop();
             startState.pop();
         }
-        else break;
+        else
+            break;
     }
-    if (lastState != GHOST_UNSET){
-        switch (lastState){
+    if (lastGhostState != GHOST_UNSET){
+        switch (lastGhostState){
             case GHOST_INIT:
                 setState(GHOST_STAND);
                 break;
@@ -507,6 +539,7 @@ void Ghost::setMode(const GHOST_MODE &mode) {
             unsetMode(GHOST_FRIGHTEN_MODE);
             unsetMode(GHOST_FREEZE_MODE);
             unsetMode(GHOST_BLIND_MODE);
+            break;
         default:
             break;
     }
@@ -522,6 +555,7 @@ void Ghost::handleMode() {
 void Ghost::unsetMode(const GHOST_MODE &mode) {
     currentMode[mode] = false;
     startMode[mode] = 0;
+    velocity = GHOST_VELOCITY;
 }
 Ghost::~Ghost() {
     delete consoleGhost;

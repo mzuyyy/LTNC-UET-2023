@@ -25,6 +25,8 @@ Pacman::Pacman(SDL_Renderer *renderer, PACMAN_TYPE type, Timer *_timer) {
             objectType = OBJECT_MS_PACMAN;
             pacmanTexture = pacmanManager->loadTexture(MS_TEXTURE_SHEET, pacmanRenderer);
             break;
+        default:
+            break;
     }
 
     tileID.x = startTileID.x;
@@ -70,7 +72,7 @@ void Pacman::update(){
     }
     if (power[SPEED_PACMAN]){
         lastPoint.emplace_front(position);
-        if (lastPoint.size() > 10)
+        if (lastPoint.size() > 15)
             lastPoint.pop_back();
     }
     else {
@@ -93,7 +95,51 @@ void Pacman::speedAnimation() {
     for (int i = 0; i < lastPoint.size(); i++) {
         lastDest = {lastPoint[i].x, lastPoint[i].y, OBJECT_SIZE, OBJECT_SIZE};
         textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod / (i + 1));
-        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+
+        switch (pacmanType){
+            case CLASSIC:
+                switch (directionQueue.front()) {
+                    case UP:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+                        break;
+                    case RIGHT:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    case DOWN:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    case LEFT:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                switch (directionQueue.front()) {
+                    case UP:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], lastDest, pacmanRenderer);
+                        break;
+                    case RIGHT:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 3], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    case DOWN:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 6], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    case LEFT:
+                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame + 9], lastDest,
+                                                   pacmanRenderer);
+                        break;
+                    default:
+                        break;
+                }
+
+        }
     }
     textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
 }
@@ -107,21 +153,21 @@ void Pacman::render() {
                 switch (directionQueue.front()) {
                     case UP:
                         if(power[SPEED_PACMAN]) speedAnimation();
-                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
+                         else pacmanManager->drawTexture(pacmanTexture, frameClip[frame], destRect, pacmanRenderer);
                         break;
                     case RIGHT:
                         if(power[SPEED_PACMAN]) speedAnimation();
-                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], destRect,
+                        else pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 2], destRect,
                                                    pacmanRenderer);
                         break;
                     case DOWN:
                         if(power[SPEED_PACMAN]) speedAnimation();
-                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], destRect,
+                        else pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 4], destRect,
                                                    pacmanRenderer);
                         break;
                     case LEFT:
                         if(power[SPEED_PACMAN]) speedAnimation();
-                        pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], destRect,
+                        else pacmanManager->drawTexture(pacmanTexture, frameClip[frame == 0 ? 0 : frame + 6], destRect,
                                                    pacmanRenderer);
                         break;
                     default:
@@ -176,12 +222,14 @@ void Pacman::setPacmanFrameClip() {
                 frameClip[i].h = MS_PIXEL;
             }
             break;
+        default:
+            break;
     }
 }
 
 void Pacman::queueDirection(Direction direction) {
     if (power[FREEZE_PACMAN]) return;
-    if (pacmanState == PACMAN_STAND_STATE) {
+    if (pacmanState == PACMAN_STAND_STATE || tileID == startTileID) {
         if (direction == RIGHT || direction == LEFT){
             directionQueue.push(direction);
         }
@@ -196,10 +244,6 @@ void Pacman::queueDirection(Direction direction) {
         directionQueue.emplace(direction);
         return;
     }
-    for (int i = 0; i < directionQueue.size(); i++) {
-        std::cerr << directionQueue.front() << " ";
-    }
-    std::cerr << std::endl;
 }
 
 void Pacman::move(Direction _direction, int _velocity){
@@ -218,10 +262,9 @@ void Pacman::setState(PACMAN_STATE state) {
     pacmanState = state;
     startState = timer->getTicks();
     switch (pacmanState){
-        case PACMAN_START_STATE:
+        case PACMAN_INIT_STATE:
             setPower(NORMAL_PACMAN);
             eatenDot = 0;
-            eatenFruit = 0;
             pacmanHealth = PACMAN_MAX_HEALTH;
 
             objectType = OBJECT_PACMAN;
@@ -233,8 +276,10 @@ void Pacman::setState(PACMAN_STATE state) {
 
             lastPoint.clear();
 
+            setState(PACMAN_STAND_STATE);
+
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
         case PACMAN_NEW_STATE:
             setPower(NORMAL_PACMAN);
 
@@ -245,22 +290,35 @@ void Pacman::setState(PACMAN_STATE state) {
             pacmanState = PACMAN_NEW_STATE;
             startState = timer->getTicks();
 
+            setState(PACMAN_STAND_STATE);
+
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
         case PACMAN_STAND_STATE:
             while (!directionQueue.empty())
                 directionQueue.pop();
             frame = 0;
+            tileID.x = startTileID.x;
+            tileID.y = startTileID.y;
+
+            position.x = tileID.x * 24 + 3;
+            position.y = 144 + tileID.y * 24 - 9;
+
             break;
-        case PACMAN_RUNNING_STATE : case PACMAN_EATING_STATE : case PACMAN_DEAD_STATE :
+        case PACMAN_DEAD_STATE:
+            while (!directionQueue.empty())
+                directionQueue.pop();
+            frameCount = PACMAN_DEATH_ANIMATION_FRAME;
+            health--;
+        default:
             break;
     }
 
 }
 void Pacman::handleState() {
     switch (pacmanState){
-        case PACMAN_START_STATE:
+        case PACMAN_INIT_STATE:
         case PACMAN_NEW_STATE:
             break;
         case PACMAN_STAND_STATE:
@@ -270,9 +328,7 @@ void Pacman::handleState() {
         case PACMAN_RUNNING_STATE:
             if (power[FREEZE_PACMAN])
                 break;
-            if (!directionQueue.empty())
-                move(directionQueue.front(), 0);
-            else
+            if (directionQueue.empty())
                 setState(PACMAN_STAND_STATE);
             break;
         case PACMAN_EATING_STATE: {
@@ -282,14 +338,14 @@ void Pacman::handleState() {
             }
             break;
         }
-        case PACMAN_DEAD_STATE:
+        default:
             break;
     }
 }
 
-void Pacman::setPower(PACMAN_POWER_STATE type) {
+void Pacman::setPower(PACMAN_POWER type) {
     if (type == NORMAL_PACMAN)
-        for (int i = 0; i < PACMAN_POWER_STATE_TOTAL; i++){
+        for (int i = 0; i < PACMAN_POWER_TOTAL; i++){
             power[i] = false;
             startPower[i] = 0;
         }
@@ -297,12 +353,12 @@ void Pacman::setPower(PACMAN_POWER_STATE type) {
     startPower[type] = timer->getTicks();
     switch (type){
         case NORMAL_PACMAN:
-            if(pacmanVelocity != PACMAN_VELOCITY)
+            if(velocity != PACMAN_VELOCITY)
                 if (checkPosition())
-                    pacmanVelocity = PACMAN_VELOCITY;
+                    velocity = PACMAN_VELOCITY;
             frameCount = PACMAN_FRAME_VALUE;
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
         case POWER_PACMAN:
             if (power[CONFUSED_PACMAN])
@@ -315,66 +371,69 @@ void Pacman::setPower(PACMAN_POWER_STATE type) {
         case SPEED_PACMAN:
             if (power[SLOW_DOWN_PACMAN])
                 removePower(SLOW_DOWN_PACMAN);
-            if(checkPosition())
-                pacmanVelocity = PACMAN_VELOCITY * 2;
+            if (checkPosition())
+                velocity = PACMAN_VELOCITY * 2;
             frameCount = 2;
             break;
         case SLOW_DOWN_PACMAN:
             if (power[SPEED_PACMAN])
                 removePower(SPEED_PACMAN);
             if(checkPosition())
-                pacmanVelocity = PACMAN_VELOCITY_SLOW;
+                velocity = PACMAN_VELOCITY_SLOW;
             frameCount = PACMAN_SLOW_FRAME_VALUE;
             break;
         case INVISIBLE_PACMAN:
             lastAlphaMod = 0x80;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
-        case BLIND_PACMAN: case FREE_TIME_PACMAN:
+        case BLIND_PACMAN: case FROZEN_PACMAN:
             break;
         case FREEZE_PACMAN:
             lastAlphaMod = 128;
             SDL_SetTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
-        case PACMAN_POWER_STATE_TOTAL:
+        case PACMAN_POWER_TOTAL:
             break;
     }
 }
 
 void Pacman::handlePower() {
     bool isPower = false;
-    for (int i = 0; i < PACMAN_POWER_STATE_TOTAL; i++)
+    for (int i = 0; i < PACMAN_POWER_TOTAL; i++)
         if (power[i]){
             Uint32 lastTick = timer->getTicks() - startPower[i];
             if (lastTick > UPGRADE_TIME[i]){
-                removePower((PACMAN_POWER_STATE)i);
+                removePower((PACMAN_POWER)i);
+                velocity = PACMAN_VELOCITY;
                 continue;
             }
             else {
-                switch ((PACMAN_POWER_STATE)i){
-                    case POWER_PACMAN: case CONFUSED_PACMAN: case INVISIBLE_PACMAN: case BLIND_PACMAN: case FREEZE_PACMAN: case FREE_TIME_PACMAN:
+                switch ((PACMAN_POWER)i){
+                    case POWER_PACMAN: case CONFUSED_PACMAN: case INVISIBLE_PACMAN: case BLIND_PACMAN: case FREEZE_PACMAN: case FROZEN_PACMAN:
                         break;
                     case SPEED_PACMAN:
                         if (checkPosition())
-                            pacmanVelocity = PACMAN_VELOCITY * 2;
+                            velocity = PACMAN_VELOCITY * 2;
                         break;
                     case SLOW_DOWN_PACMAN:
                         if (checkPosition())
-                            pacmanVelocity = PACMAN_VELOCITY_SLOW;
+                            velocity = PACMAN_VELOCITY_SLOW;
+                        break;
+                    default:
                         break;
                 }
             }
             isPower = true;
         }
     if (!isPower)
-        if(pacmanVelocity != PACMAN_VELOCITY)
+        if(velocity != PACMAN_VELOCITY)
             if(checkPosition()){
-                pacmanVelocity = PACMAN_VELOCITY;
+                velocity = PACMAN_VELOCITY;
                 frameCount = PACMAN_FRAME_VALUE;
             }
 }
 
-void Pacman::removePower(PACMAN_POWER_STATE type) {
+void Pacman::removePower(PACMAN_POWER type) {
     power[type] = false;
     startPower[type] = 0;
     switch (type){
@@ -383,28 +442,30 @@ void Pacman::removePower(PACMAN_POWER_STATE type) {
             break;
         case SPEED_PACMAN:
             lastPoint.clear();
-            if (pacmanVelocity != PACMAN_VELOCITY)
+            if (velocity != PACMAN_VELOCITY)
                 if (checkPosition())
-                    pacmanVelocity = PACMAN_VELOCITY;
+                    velocity = PACMAN_VELOCITY;
             frameCount = PACMAN_FRAME_VALUE;
             break;
         case SLOW_DOWN_PACMAN:
-            if(pacmanVelocity != PACMAN_VELOCITY)
+            if(velocity != PACMAN_VELOCITY)
                 if (checkPosition())
-                    pacmanVelocity = PACMAN_VELOCITY;
+                    velocity = PACMAN_VELOCITY;
             frameCount = PACMAN_FRAME_VALUE;
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
         case INVISIBLE_PACMAN:
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
             break;
-        case BLIND_PACMAN: case FREE_TIME_PACMAN:
+        case BLIND_PACMAN: case FROZEN_PACMAN:
             break;
         case FREEZE_PACMAN:
             lastAlphaMod = 0xFF;
-            pacmanManager->setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            textureManager::setTextureAlphaMod(pacmanTexture, lastAlphaMod);
+            break;
+        default:
             break;
     }
 }

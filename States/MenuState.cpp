@@ -59,6 +59,9 @@ void MenuState::init(Engine *_engine) {
 
 void MenuState::render() {
     menuManager->drawTexture(menuTexture, menuFrameClip[currentState], destRect, menuStateRenderer);
+    if (currentState == HIGHSCORE){
+
+    }
     if (currentState == MAIN){
         menuManager->drawTexture(buttonTexture, buttonFrameClip[isChoosing[currentMenuButton]][currentMenuButton],
                                  buttonDest[currentMenuButton] , menuStateRenderer);
@@ -155,8 +158,6 @@ void MenuState::updateButton(const int change) {
         else if (currentMenuButton > MENU_EXIT) currentMenuButton = MENU_START;
 
         isChoosing[currentMenuButton] = 1;
-
-        std::cerr << "Current menu button: " << currentMenuButton << std::endl;
     }
     else if (currentState == SETTING) {
         currentSettingButton += change;

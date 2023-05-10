@@ -10,8 +10,8 @@
 #include "ControlManager.h"
 #include <set>
 
-const std::string GAME_CONFIG_PATH = "../config/game.txt";
-const std::string HIGH_SCORE_PATH = "../config/highscore.dat";
+const std::string GAME_CONFIG_PATH = "../Data/game.txt";
+const std::string HIGH_SCORE_PATH = "../Data/highscore.dat";
 
 const int VOLUME_TOTAL = 11;
 const int VOLUME_VALUE[VOLUME_TOTAL] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
@@ -29,7 +29,7 @@ public:
     void update() const;
 
     void save(const std::string& path = GAME_CONFIG_PATH) const;
-    void saveHighScore(const std::string &path, Uint32 score, int level);
+    void saveHighScore(Uint32 score, int level);
 
     Audio* getAudio(){
         return audio;
@@ -63,6 +63,9 @@ public:
     }
     int getControlType(){
         return controlType;
+    }
+    int getHighScore(){
+        return highScoreSet.empty() ? 0 : *highScoreSet.begin();
     }
 private:
     Log* consoleEngine;

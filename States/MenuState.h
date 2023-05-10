@@ -9,6 +9,7 @@
 #include "State.h"
 #include "../Objects/Object.h"
 #include "../Objects/pacman.h"
+#include "../GameStatus.h"
 
 enum MENU_BUTTON {
     MENU_START = 0,
@@ -89,6 +90,8 @@ private:
     Log* consoleMenu;
 
     Engine* engine{};
+
+    GameStatus* gameStatus;
 
     SDL_Rect buttonDest[MENU_BUTTON_TOTAL];
     SDL_Rect settingDest[SETTING_BUTTON_TOTAL];

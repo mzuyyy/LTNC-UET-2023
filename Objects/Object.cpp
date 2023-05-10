@@ -40,6 +40,8 @@ void Object::move(Direction direction, int _velocity) {
         case RIGHT:
             position.x += _velocity;
             break;
+        case NONE:
+            break;
     }
     destRect = {position.x, position.y, OBJECT_SIZE, OBJECT_SIZE};
     if (checkPosition()){
@@ -51,13 +53,6 @@ bool Object::checkPosition() const{
     int x = position.x + OBJECT_SIZE / 2;
     int y = position.y - 144 + OBJECT_SIZE / 2;
     return (x % 24 == 12) && (y % 24 == 12);
-}
-
-bool Object::checkCollision(Object *object) const {
-    return (position.x + OBJECT_SIZE - 31 <= object->getPosition().x) ||
-           (position.y >= object->getPosition().y + OBJECT_SIZE - 31) ||
-           (position.x >= object->getPosition().x + OBJECT_SIZE - 31) ||
-           (position.y + OBJECT_SIZE - 31 <= object->getPosition().y);
 }
 
 void Object::setTileID(TileID _tileID) {

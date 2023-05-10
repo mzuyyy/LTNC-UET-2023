@@ -6,6 +6,8 @@
 #define BTL_UPGRADEDGHOST_H
 
 #include "Object.h"
+#include "pacman.h"
+
 enum UPGRADED_GHOST_TYPE{
     DEADLY,
     INVISY,
@@ -50,7 +52,6 @@ const int UPGRADED_GHOST_MODE_TIME[UPGRADED_GHOST_MODE_TOTAL] = {
         0, 3000, 600, 7800,
         12450, 6000, 8400,
 };
-const Position UPGRADE_MYSTERY_POSITION = {11 * 24 + 3, 17 * 24 - 9};
 const Position UPGRADED_GHOST_APPEAR_POSITION = {13 * 24 + 3, 17 * 24 - 9};
 const int UPGRADED_GHOST_FRAME = 2;
 const int UPGRADED_GHOST_VELOCITY = 2;
@@ -69,12 +70,11 @@ const Position START_UPGRADED_GHOST_POSITION[UPGRADED_GHOST_TYPE_TOTAL] = {
         {15 * 24 + 3, 15 * 24 - 9},
 };
 const Position UPGRADED_SCATTER_POSITION[UPGRADED_GHOST_TYPE_TOTAL] = {
-        {27 * 24 + 3, -1 * 24 - 9},
-        {0 * 24 + 3, 32 * 24 - 9},
-        {27 * 24 + 3, 32 * 24 - 9},
-        {0 * 24 + 3, -1 * 24 - 9},
+        {28 * 24, 5 * 24},
+        {0 * 24, 32 * 24},
+        {28 * 24, 32 * 24},
+        {0 * 24, 5 * 24},
 };
-const TileID MYSTERY_GIVE_STRENGTH_TILE_ID = {11, 14};
 
 class UpgradedGhost : public Object {
 private:
@@ -105,8 +105,7 @@ private:
 
     SDL_Rect ghostFrameClip[11]{};
 
-    bool isUpgrade = false;
-    bool isAppear, isStop;
+    bool isAppear;
 public:
     UpgradedGhost(UPGRADED_GHOST_TYPE type, SDL_Renderer *renderer, Timer *timer);
     ~UpgradedGhost();
@@ -125,6 +124,14 @@ public:
     void setMode(const UPGRADED_GHOST_MODE& mode);
     void handleMode();
     void unsetMode(const UPGRADED_GHOST_MODE& mode);
+
+    bool checkCollision(Pacman* _pacman) const {
+        return (position.x - 21 <= _pacman->getPosition().x) ||
+               (position.y >= _pacman->getPosition().y - 21) ||
+               (position.x >= _pacman->getPosition().x - 21) ||
+               (position.y - 21 <= _pacman->getPosition().y);
+    }
+
     Position getPosition() override{
         Position temp = position;
         temp.y -= 24 * 6;
@@ -152,17 +159,17 @@ public:
         }
         return temp;
     }
-    void checkMove(bool flag){
-        CanMove = flag;
-    }
     TileID getTileID() override{
         return tileID;
+    }
+    void setCanMove(bool _canMove){
+        CanMove = _canMove;
     }
     void setTarget(Position _target) {
         target = _target;
     }
-    TileID getTarget() const{
-        return {target.x / 24, target.y / 24};
+    Position getTarget() const{
+        return {target.x, target.y};
     }
     void leaveCage(){
         isOutCage = true;
@@ -171,13 +178,24 @@ public:
     UPGRADED_GHOST_TYPE getType(){
         return ghostType;
     }
-    bool isUpgradeState() const{
-        return isUpgrade;
+    bool isUpgradedGhostAppear() const{
+        return isAppear;
     }
-    const Position getStartPosition() const{
-        return START_UPGRADED_GHOST_POSITION[ghostType];
+    Position getDeadlyStartPosition() const{
+        Position temp = START_UPGRADED_GHOST_POSITION[DEADLY];
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
     }
-    bool isGhostOutCage() const{
+    Position getStartPosition() const{
+        Position temp = START_UPGRADED_GHOST_POSITION[ghostType];
+        temp.x += 21;
+        temp.y += 21;
+        temp.y -= 24;
+        return temp;
+    }
+    bool isUpgradedGhostOutCage() const{
         return isOutCage;
     }
     Position getScatterPosition() const{

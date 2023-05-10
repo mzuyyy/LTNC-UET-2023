@@ -21,6 +21,8 @@ UpgradedGhost::UpgradedGhost(UPGRADED_GHOST_TYPE type, SDL_Renderer* _renderer, 
 
     UpgradedGhost::setGhostFrameClip();
 
+    CanMove = true;
+
     ghostTexture = ghostManager->loadTexture(UPGRADED_GHOST_TEXTURE_PATH[ghostType], objectRenderer);
 
     switch (ghostType) {
@@ -107,22 +109,25 @@ void UpgradedGhost::render() {
             }
             break;
         case UPGRADED_GHOST_REBORN: case UPGRADED_GHOST_IS_EATING:
-            switch (currentDirection) {
-                case UP:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], destRect, objectRenderer);
-                    break;
-                case RIGHT:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 5], destRect, objectRenderer);
-                    break;
-                case DOWN:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 6], destRect, objectRenderer);
-                    break;
-                case LEFT:
-                    ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 7], destRect, objectRenderer);
-                    break;
-                case NONE:
-                    break;
-            }
+            if (isGhostMode(UPGRADED_GHOST_SPEED_UP_MODE))
+                speedAnimation();
+            else
+                switch (currentDirection) {
+                    case UP:
+                        ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 4], destRect, objectRenderer);
+                        break;
+                    case RIGHT:
+                        ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 5], destRect, objectRenderer);
+                        break;
+                    case DOWN:
+                        ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 6], destRect, objectRenderer);
+                        break;
+                    case LEFT:
+                        ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame + 7], destRect, objectRenderer);
+                        break;
+                    case NONE:
+                        break;
+                }
             break;
         case UPGRADED_GHOST_FRIGHTEN:
             ghostManager->drawTexture(ghostTexture, ghostFrameClip[frame], destRect, objectRenderer);
@@ -218,12 +223,13 @@ void UpgradedGhost::update() {
     }
     if (currentMode[UPGRADED_GHOST_INVISIBLE_MODE]){
         Uint32 tick = UPGRADED_GHOST_MODE_TIME[UPGRADED_GHOST_INVISIBLE_MODE] - (timer->getTicks() - startMode[UPGRADED_GHOST_INVISIBLE_MODE]);
+        Uint32 tickLeft = timer->getTicks() - startMode[UPGRADED_GHOST_INVISIBLE_MODE];
         Uint32 tempAlpha = 0;
 
         if (tick <= 2000)
             tempAlpha = 0xFF / (1 - tick / 2000);
         else if (tick >= 4000)
-            tempAlpha = 0xFF / (1 - (UPGRADED_GHOST_MODE_TIME[UPGRADED_GHOST_INVISIBLE_MODE] - tick) / 2000);
+            tempAlpha = 0xFF / (1 - tickLeft/ 2000);
 
         textureManager::setTextureAlphaMod(ghostTexture, tempAlpha);
     }
@@ -263,8 +269,6 @@ void UpgradedGhost::initState() {
         case UPGRADED_GHOST_INIT:
             currentDirection = NONE;
 
-            isStop = true;
-
             velocity = UPGRADED_GHOST_VELOCITY;
             frameCount = UPGRADED_GHOST_FRAME;
 
@@ -287,8 +291,6 @@ void UpgradedGhost::initState() {
         case UPGRADED_GHOST_WAIT:
             currentDirection = NONE;
 
-            isStop = true;
-
             velocity = 0;
             frameCount = UPGRADED_GHOST_FRAME;
 
@@ -303,7 +305,6 @@ void UpgradedGhost::initState() {
 
             break;
         case UPGRADED_GHOST_APPEAR:
-            isStop = true;
             isAppear = false;
 
             currentDirection = NONE;
@@ -319,8 +320,6 @@ void UpgradedGhost::initState() {
 
             frameCount = UPGRADED_GHOST_FRAME / 2;
         case UPGRADED_GHOST_STAND:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = UPGRADED_GHOST_VELOCITY;
@@ -352,8 +351,6 @@ void UpgradedGhost::initState() {
 
             break;
         case UPGRADED_GHOST_IS_EATING:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = 0;
@@ -369,8 +366,6 @@ void UpgradedGhost::initState() {
 
             break;
         case UPGRADED_GHOST_WAS_EATEN:
-            isStop = true;
-
             currentDirection = NONE;
 
             velocity = UPGRADED_GHOST_VELOCITY * 4;
@@ -416,6 +411,12 @@ void UpgradedGhost::setState(UPGRADED_GHOST_STATE newState) {
                 startState.pop();
             }
             break;
+        case UPGRADED_GHOST_SCATTER:
+            if (ghostType != DEADLY){
+                Position temp = START_UPGRADED_GHOST_POSITION[DEADLY];
+                temp.y += 24 * 5;
+                setPosition(temp);
+            }
         case UPGRADED_GHOST_FRIGHTEN:
             setMode(UPGRADED_GHOST_FRIGHTEN_MODE);
             break;
@@ -484,7 +485,7 @@ void UpgradedGhost::handleState() {
         if (stateQueue.front() == UPGRADED_GHOST_STAND || stateQueue.front() == UPGRADED_GHOST_WAIT)
             return;
     }
-    if (currentDirection != NONE)
+    if (currentDirection != NONE && CanMove)
         move();
 
     unsetState();
@@ -511,7 +512,7 @@ void UpgradedGhost::unsetState() {
             }
         }
     if (!checkPosition() && stateQueue.front() != UPGRADED_GHOST_IS_EATING
-    && stateQueue.front() != UPGRADED_GHOST_FREEZE && stateQueue.front() != UPGRADED_GHOST_INIT)
+        && stateQueue.front() != UPGRADED_GHOST_FREEZE && stateQueue.front() != UPGRADED_GHOST_INIT)
         return;
     if (stateQueue.back() == UPGRADED_GHOST_FRIGHTEN && stateQueue.size() > 1)
         while (stateQueue.front() != UPGRADED_GHOST_FRIGHTEN){
@@ -613,7 +614,7 @@ void UpgradedGhost::handleMode() {
                 unsetMode((UPGRADED_GHOST_MODE)i);
             else if (i == UPGRADED_GHOST_SPEED_UP_MODE && stateQueue.front() != UPGRADED_GHOST_WAS_EATEN){
                 if (tick <= 2400 && checkPosition())
-                        velocity = UPGRADED_GHOST_SPEED_UP_VELOCITY;
+                    velocity = UPGRADED_GHOST_SPEED_UP_VELOCITY;
                 else if (checkPosition())
                     velocity = UPGRADED_GHOST_SPEED_UP_VELOCITY;
             }
@@ -627,5 +628,10 @@ void UpgradedGhost::unsetMode(const UPGRADED_GHOST_MODE &mode) {
     currentMode[mode] = false;
     startMode[mode] = 0;
 }
-
+UpgradedGhost::~UpgradedGhost() {
+    delete timer;
+    timer = nullptr;
+    delete consoleGhost;
+    consoleGhost = nullptr;
+}
 

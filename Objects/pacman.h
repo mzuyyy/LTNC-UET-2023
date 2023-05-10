@@ -12,9 +12,8 @@
 #include <string>
 #include <map>
 
-enum PACMAN_STATE
-{
-    PACMAN_START_STATE = 0,
+enum PACMAN_STATE {
+    PACMAN_INIT_STATE = 0,
     PACMAN_NEW_STATE,
     PACMAN_STAND_STATE,
     PACMAN_RUNNING_STATE,
@@ -22,8 +21,7 @@ enum PACMAN_STATE
     PACMAN_DEAD_STATE,
     PACMAN_STATE_TOTAL
 };
-enum PACMAN_POWER_STATE
-{
+enum PACMAN_POWER {
     NORMAL_PACMAN = 0,
     POWER_PACMAN,
     CONFUSED_PACMAN,
@@ -31,9 +29,9 @@ enum PACMAN_POWER_STATE
     SLOW_DOWN_PACMAN,
     INVISIBLE_PACMAN,
     BLIND_PACMAN,
-    FREE_TIME_PACMAN,
+    FROZEN_PACMAN,
     FREEZE_PACMAN,
-    PACMAN_POWER_STATE_TOTAL
+    PACMAN_POWER_TOTAL
 };
 enum PACMAN_TYPE{
     CLASSIC,
@@ -41,7 +39,7 @@ enum PACMAN_TYPE{
     ANDROID,
     PACMAN_TYPE_TOTAL,
 };
-class Pacman : public Object{
+class Pacman : public Object {
 public:
     Pacman(SDL_Renderer *renderer, PACMAN_TYPE type, Timer *_timer);
 
@@ -56,10 +54,16 @@ public:
     void stop();
     void setState(PACMAN_STATE state);
     void handleState();
-    void setPower(PACMAN_POWER_STATE type);
-    void removePower(PACMAN_POWER_STATE type);
+    void setPower(PACMAN_POWER type);
+    void removePower(PACMAN_POWER type);
     void handlePower();
 
+    PACMAN_TYPE getType(){
+        return pacmanType;
+    }
+    SDL_Texture* getTexture(){
+        return pacmanTexture;
+    };
     PACMAN_STATE getState(){
         return pacmanState;
     }
@@ -146,8 +150,8 @@ public:
     void eatDot(){
         eatenDot++;
     };
-    void eatFruit(){
-        eatenFruit++;
+    int getEatenDot(){
+        return eatenDot;
     }
     bool isPacmanDead() const{
         return isDead;
@@ -157,7 +161,6 @@ public:
     }
     void gainHealth(){
         pacmanHealth++;
-        eatenFruit -= 4;
     }
     void loseHealth(){
         pacmanHealth--;
@@ -168,12 +171,12 @@ public:
     void checkMove(bool check){
         CanMove = check;
     }
-    bool isPacmanPower(PACMAN_POWER_STATE _power){
+    bool isPacmanPower(PACMAN_POWER _power){
         return power[_power];
     }
 private:
     const int PACMAN_EATING_STATE_TIME = 1000;
-    const int UPGRADE_TIME[PACMAN_POWER_STATE_TOTAL] = {0, 8000, 4000, 3000, 4000, 4000, 5000,  5500, 3000};
+    const int UPGRADE_TIME[PACMAN_POWER_TOTAL] = {0, 8000, 4000, 3000, 4000, 4000, 5000, 5500, 3000};
     const int PACMAN_VELOCITY = 2;
     const int PACMAN_VELOCITY_SLOW = 1;
     const int PACMAN_MAX_HEALTH = 5;
@@ -188,15 +191,13 @@ private:
     const std::string MS_TEXTURE_SHEET = "../Assets/Pacman/msPacmanTexture.png";
     const std::string DEAD_PACMAN_TEXTURE_SHEET = "../Assets/Pacman/PacmanDead.png";
 
-    bool power[PACMAN_POWER_STATE_TOTAL]{};
-    Uint32 startPower[PACMAN_POWER_STATE_TOTAL]{};
+    bool power[PACMAN_POWER_TOTAL]{};
+    Uint32 startPower[PACMAN_POWER_TOTAL]{};
     PACMAN_STATE pacmanState;
 
-    const PACMAN_STATE pacmanStartState = PACMAN_START_STATE;
+    const PACMAN_STATE pacmanStartState = PACMAN_INIT_STATE;
 
     int pacmanHealth = PACMAN_MAX_HEALTH;
-
-    Uint32 pacmanVelocity{};
 
     SDL_Renderer* pacmanRenderer = nullptr;
 
@@ -211,7 +212,6 @@ private:
     SDL_Rect frameClip[12]{};
 
     Uint32 eatenDot = 0;
-    Uint32 eatenFruit = 0;
 
     Uint32 startState{};
 };
